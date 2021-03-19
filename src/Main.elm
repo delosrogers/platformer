@@ -9,6 +9,7 @@ import Color
 import Html
 import Html.Attributes exposing (width)
 import Json.Decode as Decode
+import Keyboard
 import Process
 import Random
 import Task
@@ -48,25 +49,25 @@ platformHeight =
 
 playerSpeed : Float
 playerSpeed =
-    10
+    5
 
 
 platformSpeed : Float
 platformSpeed =
-    2
+    0
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { player =
-            { x = 0
-            , y = 200
+            { x = 50
+            , y = 100
             , vX = 0
             , vY = 0
             }
       , platforms =
             [ { x = 0
-              , y = 0
+              , y = 200
               , width = 100
               , vX = platformSpeed
               }
@@ -80,7 +81,7 @@ init _ =
 type Msg
     = OnAnimationFrame Float
     | KeyDown PlayerAction
-    | KeyUp PlayerAction
+    | KeyUp
     | RestartGame
 
 
@@ -88,6 +89,7 @@ type PlayerAction
     = Jump
     | Left
     | Right
+    | Other
 
 
 main =
@@ -132,7 +134,10 @@ update msg model =
                 Right ->
                     ( { model | player = turnRight model.player }, Cmd.none )
 
-        KeyUp _ ->
+                Other ->
+                    ( model, Cmd.none )
+
+        KeyUp ->
             ( { model | player = stopXMotion model.player }, Cmd.none )
 
         RestartGame ->
@@ -167,8 +172,12 @@ jumpPlayer model =
     in
     { model
         | player =
-            { player | vY = player.vY + 10 }
+            { player | vY = player.vY + 3, y = player.y - platformHeight - 1 }
     }
+
+
+gravity =
+    0.1
 
 
 updatePlayer : Model -> Player
@@ -186,8 +195,8 @@ updatePlayer model =
     else
         { player
             | x = player.x + player.vX
-            , vY = player.vY - 1
-            , y = player.y + player.vY
+            , vY = player.vY - gravity
+            , y = player.y - player.vY
         }
 
 
@@ -197,9 +206,38 @@ playerOnPlatforms player platforms =
         |> List.any (\x -> x)
 
 
+
+-- SUBSCRIPTIONS
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    Sub.batch
+        [ Browser.Events.onAnimationFrameDelta (\x -> OnAnimationFrame x)
+        , Browser.Events.onKeyDown keyDecoder
+        , Browser.Events.onKeyUp (Decode.map (\_ -> KeyUp) (Decode.field "key" Decode.string))
+        ]
+
+
+keyDecoder : Decode.Decoder Msg
+keyDecoder =
+    Decode.map toDirection (Decode.field "key" Decode.string)
+
+
+toDirection : String -> Msg
+toDirection string =
+    case string of
+        "ArrowLeft" ->
+            KeyDown Left
+
+        "ArrowRight" ->
+            KeyDown Right
+
+        "ArrowUp" ->
+            KeyDown Jump
+
+        _ ->
+            KeyDown Other
 
 
 playerOnPlatform : Player -> Platform -> Bool
@@ -224,7 +262,8 @@ view : Model -> Html.Html Msg
 view model =
     Canvas.toHtml ( 500, 500 )
         [ Html.Attributes.style "display" "block" ]
-        [ renderPlayer model.player
+        [ Canvas.shapes [ Canvas.Settings.fill Color.white ] [ Canvas.rect ( 0, 0 ) 500 500 ]
+        , renderPlayer model.player
         , renderPlatforms model.platforms
         ]
 

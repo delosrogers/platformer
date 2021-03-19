@@ -13,7 +13,8 @@
             "elm/json": "1.1.3",
             "elm/random": "1.0.0",
             "elm/svg": "1.0.1",
-            "joakin/elm-canvas": "4.2.1"
+            "joakin/elm-canvas": "4.2.1",
+            "ohanhi/keyboard": "2.0.1"
         },
         "indirect": {
             "elm/time": "1.0.0",
