@@ -6,13 +6,11 @@ import Browser.Events
 import Canvas
 import Canvas.Settings
 import Color
-import Html
+import Html exposing (button, div, text)
 import Html.Attributes exposing (width)
+import Html.Events
 import Json.Decode as Decode
-import Keyboard
-import Process
 import Random
-import Task
 
 
 type alias Model =
@@ -66,16 +64,13 @@ init _ =
             , vY = 0
             }
       , platforms =
-            [ { x = 0
-              , y = 200
-              , width = 100
-              , vX = platformSpeed
-              }
-            ]
+            []
       , alive = True
       }
     , Cmd.none
     )
+
+genPlatforms :
 
 
 type Msg
@@ -102,7 +97,11 @@ main =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update msg unshifted_model =
+    let
+        model =
+            shiftModel unshifted_model
+    in
     case msg of
         OnAnimationFrame _ ->
             let
@@ -144,6 +143,27 @@ update msg model =
             init ()
 
 
+shiftModel : Model -> Model
+shiftModel model =
+    let
+        player =
+            model.player
+    in
+    if model.player.y < 300 then
+        { model
+            | player = { player | y = player.y + 2 }
+            , platforms =
+                List.map
+                    (\platform ->
+                        { platform | y = platform.y + 2 }
+                    )
+                    model.platforms
+        }
+
+    else
+        model
+
+
 turnRight : Player -> Player
 turnRight player =
     { player | vX = playerSpeed }
@@ -170,10 +190,14 @@ jumpPlayer model =
         player =
             model.player
     in
-    { model
-        | player =
-            { player | vY = player.vY + 3, y = player.y - platformHeight - 1 }
-    }
+    if playerOnPlatforms player model.platforms then
+        { model
+            | player =
+                { player | vY = player.vY + 5, y = player.y - platformHeight - 1 }
+        }
+
+    else
+        model
 
 
 gravity =
@@ -260,11 +284,15 @@ playerOnPlatform player platform =
 
 view : Model -> Html.Html Msg
 view model =
-    Canvas.toHtml ( 500, 500 )
-        [ Html.Attributes.style "display" "block" ]
-        [ Canvas.shapes [ Canvas.Settings.fill Color.white ] [ Canvas.rect ( 0, 0 ) 500 500 ]
-        , renderPlayer model.player
-        , renderPlatforms model.platforms
+    div []
+        [ button [ Html.Events.onClick RestartGame ] [ text "reset" ]
+        , Canvas.toHtml
+            ( 1000, 1000 )
+            [ Html.Attributes.style "display" "block" ]
+            [ Canvas.clear ( 0, 0 ) 1000 1000
+            , renderPlayer model.player
+            , renderPlatforms model.platforms
+            ]
         ]
 
 

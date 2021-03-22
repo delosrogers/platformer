@@ -10536,15 +10536,23 @@ var $elm$core$Basics$never = function (_v0) {
 	}
 };
 var $elm$browser$Browser$element = _Browser_element;
+var $elm$core$Basics$modBy = _Basics_modBy;
 var $author$project$Main$platformSpeed = 0;
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
 		{
 			alive: true,
-			platforms: _List_fromArray(
-				[
-					{vX: $author$project$Main$platformSpeed, width: 100, x: 0, y: 200}
-				]),
+			platforms: A2(
+				$elm$core$List$map,
+				function (i) {
+					return {
+						vX: $author$project$Main$platformSpeed,
+						width: 100,
+						x: 100 * A2($elm$core$Basics$modBy, 2, i),
+						y: 400 - (100 * i)
+					};
+				},
+				A2($elm$core$List$range, 1, 100)),
 			player: {vX: 0, vY: 0, x: 50, y: 100}
 		},
 		$elm$core$Platform$Cmd$none);
@@ -10898,43 +10906,6 @@ var $author$project$Main$subscriptions = function (model) {
 			]));
 };
 var $author$project$Main$platformHeight = 10;
-var $author$project$Main$jumpPlayer = function (model) {
-	var player = model.player;
-	return _Utils_update(
-		model,
-		{
-			player: _Utils_update(
-				player,
-				{vY: player.vY + 3, y: (player.y - $author$project$Main$platformHeight) - 1})
-		});
-};
-var $author$project$Main$movePlatforms = function (platforms) {
-	return A2(
-		$elm$core$List$map,
-		function (platform) {
-			return _Utils_update(
-				platform,
-				{x: platform.x + platform.vX});
-		},
-		platforms);
-};
-var $author$project$Main$stopXMotion = function (player) {
-	return _Utils_update(
-		player,
-		{vX: 0});
-};
-var $author$project$Main$playerSpeed = 5;
-var $author$project$Main$turnLeft = function (player) {
-	return _Utils_update(
-		player,
-		{vX: (-1) * $author$project$Main$playerSpeed});
-};
-var $author$project$Main$turnRight = function (player) {
-	return _Utils_update(
-		player,
-		{vX: $author$project$Main$playerSpeed});
-};
-var $author$project$Main$gravity = 0.1;
 var $elm$core$List$any = F2(
 	function (isOkay, list) {
 		any:
@@ -10972,6 +10943,61 @@ var $author$project$Main$playerOnPlatforms = F2(
 				$author$project$Main$playerOnPlatform(player),
 				platforms));
 	});
+var $author$project$Main$jumpPlayer = function (model) {
+	var player = model.player;
+	return A2($author$project$Main$playerOnPlatforms, player, model.platforms) ? _Utils_update(
+		model,
+		{
+			player: _Utils_update(
+				player,
+				{vY: player.vY + 5, y: (player.y - $author$project$Main$platformHeight) - 1})
+		}) : model;
+};
+var $author$project$Main$movePlatforms = function (platforms) {
+	return A2(
+		$elm$core$List$map,
+		function (platform) {
+			return _Utils_update(
+				platform,
+				{x: platform.x + platform.vX});
+		},
+		platforms);
+};
+var $author$project$Main$shiftModel = function (model) {
+	var player = model.player;
+	return (model.player.y < 300) ? _Utils_update(
+		model,
+		{
+			platforms: A2(
+				$elm$core$List$map,
+				function (platform) {
+					return _Utils_update(
+						platform,
+						{y: platform.y + 2});
+				},
+				model.platforms),
+			player: _Utils_update(
+				player,
+				{y: player.y + 2})
+		}) : model;
+};
+var $author$project$Main$stopXMotion = function (player) {
+	return _Utils_update(
+		player,
+		{vX: 0});
+};
+var $author$project$Main$playerSpeed = 5;
+var $author$project$Main$turnLeft = function (player) {
+	return _Utils_update(
+		player,
+		{vX: (-1) * $author$project$Main$playerSpeed});
+};
+var $author$project$Main$turnRight = function (player) {
+	return _Utils_update(
+		player,
+		{vX: $author$project$Main$playerSpeed});
+};
+var $author$project$Main$gravity = 0.1;
 var $author$project$Main$updatePlayer = function (model) {
 	var player = model.player;
 	var platforms = model.platforms;
@@ -10982,7 +11008,8 @@ var $author$project$Main$updatePlayer = function (model) {
 		{vY: player.vY - $author$project$Main$gravity, x: player.x + player.vX, y: player.y - player.vY});
 };
 var $author$project$Main$update = F2(
-	function (msg, model) {
+	function (msg, unshifted_model) {
+		var model = $author$project$Main$shiftModel(unshifted_model);
 		switch (msg.$) {
 			case 'OnAnimationFrame':
 				var updatedPlayer = $author$project$Main$updatePlayer(model);
@@ -11032,6 +11059,24 @@ var $author$project$Main$update = F2(
 				return $author$project$Main$init(_Utils_Tuple0);
 		}
 	});
+var $author$project$Main$RestartGame = {$: 'RestartGame'};
+var $joakin$elm_canvas$Canvas$Internal$Canvas$DrawableClear = F3(
+	function (a, b, c) {
+		return {$: 'DrawableClear', a: a, b: b, c: c};
+	});
+var $joakin$elm_canvas$Canvas$Internal$Canvas$NotSpecified = {$: 'NotSpecified'};
+var $joakin$elm_canvas$Canvas$Renderable = function (a) {
+	return {$: 'Renderable', a: a};
+};
+var $joakin$elm_canvas$Canvas$clear = F3(
+	function (point, w, h) {
+		return $joakin$elm_canvas$Canvas$Renderable(
+			{
+				commands: _List_Nil,
+				drawOp: $joakin$elm_canvas$Canvas$Internal$Canvas$NotSpecified,
+				drawable: A3($joakin$elm_canvas$Canvas$Internal$Canvas$DrawableClear, point, w, h)
+			});
+	});
 var $joakin$elm_canvas$Canvas$Internal$Canvas$Fill = function (a) {
 	return {$: 'Fill', a: a};
 };
@@ -11057,10 +11102,6 @@ var $avh4$elm_color$Color$RgbaSpace = F4(
 var $avh4$elm_color$Color$red = A4($avh4$elm_color$Color$RgbaSpace, 204 / 255, 0 / 255, 0 / 255, 1.0);
 var $joakin$elm_canvas$Canvas$Internal$Canvas$DrawableShapes = function (a) {
 	return {$: 'DrawableShapes', a: a};
-};
-var $joakin$elm_canvas$Canvas$Internal$Canvas$NotSpecified = {$: 'NotSpecified'};
-var $joakin$elm_canvas$Canvas$Renderable = function (a) {
-	return {$: 'Renderable', a: a};
 };
 var $joakin$elm_canvas$Canvas$Internal$Canvas$FillAndStroke = F2(
 	function (a, b) {
@@ -11914,33 +11955,39 @@ var $joakin$elm_canvas$Canvas$toHtml = F3(
 			attrs,
 			entities);
 	});
-var $avh4$elm_color$Color$white = A4($avh4$elm_color$Color$RgbaSpace, 255 / 255, 255 / 255, 255 / 255, 1.0);
 var $author$project$Main$view = function (model) {
-	return A3(
-		$joakin$elm_canvas$Canvas$toHtml,
-		_Utils_Tuple2(500, 500),
-		_List_fromArray(
-			[
-				A2($elm$html$Html$Attributes$style, 'display', 'block')
-			]),
+	return A2(
+		$elm$html$Html$div,
+		_List_Nil,
 		_List_fromArray(
 			[
 				A2(
-				$joakin$elm_canvas$Canvas$shapes,
+				$elm$html$Html$button,
 				_List_fromArray(
 					[
-						$joakin$elm_canvas$Canvas$Settings$fill($avh4$elm_color$Color$white)
+						$elm$html$Html$Events$onClick($author$project$Main$RestartGame)
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('reset')
+					])),
+				A3(
+				$joakin$elm_canvas$Canvas$toHtml,
+				_Utils_Tuple2(1000, 1000),
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'display', 'block')
 					]),
 				_List_fromArray(
 					[
 						A3(
-						$joakin$elm_canvas$Canvas$rect,
+						$joakin$elm_canvas$Canvas$clear,
 						_Utils_Tuple2(0, 0),
-						500,
-						500)
-					])),
-				$author$project$Main$renderPlayer(model.player),
-				$author$project$Main$renderPlatforms(model.platforms)
+						1000,
+						1000),
+						$author$project$Main$renderPlayer(model.player),
+						$author$project$Main$renderPlatforms(model.platforms)
+					]))
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(
