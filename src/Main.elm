@@ -216,7 +216,7 @@ view model =
 
 renderPlayer : Player -> Canvas.Renderable
 renderPlayer player =
-    Canvas.shapes [ Canvas.Settings.fill Color.red ] [ Canvas.circle ( player.x, player.y ) 15 ]
+    Canvas.shapes [ Canvas.Settings.fill Color.blue ] [ Canvas.circle ( player.x, player.y ) 15 ]
 
 
 renderPlatforms : Platforms -> Canvas.Renderable
