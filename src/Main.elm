@@ -165,6 +165,15 @@ toDirection string =
         "ArrowUp" ->
             KeyDown Jump
 
+        "w" ->
+            KeyDown Jump
+
+        "a" ->
+            KeyDown Left
+
+        "d" ->
+            KeyDown Right
+
         _ ->
             KeyDown Other
 
@@ -178,6 +187,12 @@ keyUpDecoder =
                     KeyUp Left
 
                 "ArrowRight" ->
+                    KeyUp Right
+
+                "a" ->
+                    KeyUp Left
+
+                "d" ->
                     KeyUp Right
 
                 _ ->

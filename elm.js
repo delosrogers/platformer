@@ -5420,6 +5420,12 @@ var $author$project$Main$toDirection = function (string) {
 			return $author$project$Types$KeyDown(2);
 		case 'ArrowUp':
 			return $author$project$Types$KeyDown(0);
+		case 'w':
+			return $author$project$Types$KeyDown(0);
+		case 'a':
+			return $author$project$Types$KeyDown(1);
+		case 'd':
+			return $author$project$Types$KeyDown(2);
 		default:
 			return $author$project$Types$KeyDown(3);
 	}
@@ -5438,6 +5444,10 @@ var $author$project$Main$keyUpDecoder = A2(
 			case 'ArrowLeft':
 				return $author$project$Types$KeyUp(1);
 			case 'ArrowRight':
+				return $author$project$Types$KeyUp(2);
+			case 'a':
+				return $author$project$Types$KeyUp(1);
+			case 'd':
 				return $author$project$Types$KeyUp(2);
 			default:
 				return $author$project$Types$KeyUp(3);
