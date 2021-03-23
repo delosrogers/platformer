@@ -6385,6 +6385,11 @@ var $author$project$Main$renderPlatforms = function (platforms) {
 			},
 			platforms));
 };
+var $avh4$elm_color$Color$RgbaSpace = F4(
+	function (a, b, c, d) {
+		return {$: 0, a: a, b: b, c: c, d: d};
+	});
+var $avh4$elm_color$Color$blue = A4($avh4$elm_color$Color$RgbaSpace, 52 / 255, 101 / 255, 164 / 255, 1.0);
 var $joakin$elm_canvas$Canvas$Internal$Canvas$Circle = F2(
 	function (a, b) {
 		return {$: 1, a: a, b: b};
@@ -6400,17 +6405,12 @@ var $joakin$elm_canvas$Canvas$Settings$fill = function (color) {
 	return $joakin$elm_canvas$Canvas$Internal$Canvas$SettingDrawOp(
 		$joakin$elm_canvas$Canvas$Internal$Canvas$Fill(color));
 };
-var $avh4$elm_color$Color$RgbaSpace = F4(
-	function (a, b, c, d) {
-		return {$: 0, a: a, b: b, c: c, d: d};
-	});
-var $avh4$elm_color$Color$red = A4($avh4$elm_color$Color$RgbaSpace, 204 / 255, 0 / 255, 0 / 255, 1.0);
 var $author$project$Main$renderPlayer = function (player) {
 	return A2(
 		$joakin$elm_canvas$Canvas$shapes,
 		_List_fromArray(
 			[
-				$joakin$elm_canvas$Canvas$Settings$fill($avh4$elm_color$Color$red)
+				$joakin$elm_canvas$Canvas$Settings$fill($avh4$elm_color$Color$blue)
 			]),
 		_List_fromArray(
 			[
