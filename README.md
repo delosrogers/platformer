@@ -1,3 +1,4 @@
+[![Netlify Status](https://api.netlify.com/api/v1/badges/40fbfa42-86fd-4868-ba16-54312c2019e4/deploy-status)](https://app.netlify.com/sites/hl-platformer/deploys)
 # Platformer
 
 A vertical scroling platformer written in Elm
