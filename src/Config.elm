@@ -22,7 +22,7 @@ platformSpeed =
 
 width : Float
 width =
-    400
+    500
 
 
 height : Float

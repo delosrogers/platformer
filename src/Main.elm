@@ -24,7 +24,7 @@ init _ =
 initWithBestScore : Int -> ( Model, Cmd Msg )
 initWithBestScore hs =
     ( { player =
-            { x = 50
+            { x = 150
             , y = 300
             , vX = 0
             , vY = 0
@@ -217,7 +217,7 @@ view model =
             )
         , if model.alive then
             Canvas.toHtml
-                ( round Config.width, round Config.height )
+                ( round Config.width - 100, round Config.height )
                 [ Html.Attributes.style "display" "block" ]
                 [ Canvas.clear ( 0, 0 ) Config.width Config.height
                 , renderPlayer model.player
@@ -231,7 +231,7 @@ view model =
 
 renderPlayer : Player -> Canvas.Renderable
 renderPlayer player =
-    Canvas.shapes [ Canvas.Settings.fill Color.blue ] [ Canvas.circle ( player.x, player.y ) 15 ]
+    Canvas.shapes [ Canvas.Settings.fill Color.blue ] [ Canvas.circle ( player.x - 100, player.y ) 15 ]
 
 
 renderPlatforms : Platforms -> Canvas.Renderable
@@ -239,7 +239,7 @@ renderPlatforms platforms =
     Canvas.shapes []
         (List.map
             (\platform ->
-                Canvas.rect ( platform.x, platform.y )
+                Canvas.rect ( platform.x - 100, platform.y )
                     platform.width
                     Config.platformHeight
             )

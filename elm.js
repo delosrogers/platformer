@@ -5293,7 +5293,7 @@ var $elm$random$Random$list = F2(
 			return A4($elm$random$Random$listHelp, _List_Nil, n, gen, seed);
 		};
 	});
-var $author$project$Config$width = 400;
+var $author$project$Config$width = 500;
 var $author$project$Main$genXPos = A2(
 	$elm$random$Random$list,
 	500,
@@ -5391,7 +5391,7 @@ var $author$project$Main$initWithBestScore = function (hs) {
 			N: true,
 			aj: hs,
 			P: _List_Nil,
-			E: {A: 0, p: 0, j: 50, f: 300},
+			E: {A: 0, p: 0, j: 150, f: 300},
 			aC: 0
 		},
 		A2($elm$random$Random$generate, $author$project$Types$GenList, $author$project$Main$genXPos));
@@ -6389,7 +6389,7 @@ var $author$project$Main$renderPlatforms = function (platforms) {
 			function (platform) {
 				return A3(
 					$joakin$elm_canvas$Canvas$rect,
-					_Utils_Tuple2(platform.j, platform.f),
+					_Utils_Tuple2(platform.j - 100, platform.f),
 					platform.ba,
 					$author$project$Config$platformHeight);
 			},
@@ -6426,7 +6426,7 @@ var $author$project$Main$renderPlayer = function (player) {
 			[
 				A2(
 				$joakin$elm_canvas$Canvas$circle,
-				_Utils_Tuple2(player.j, player.f),
+				_Utils_Tuple2(player.j - 100, player.f),
 				15)
 			]));
 };
@@ -7190,7 +7190,7 @@ var $author$project$Main$view = function (model) {
 				model.N ? A3(
 				$joakin$elm_canvas$Canvas$toHtml,
 				_Utils_Tuple2(
-					$elm$core$Basics$round($author$project$Config$width),
+					$elm$core$Basics$round($author$project$Config$width) - 100,
 					$elm$core$Basics$round($author$project$Config$height)),
 				_List_fromArray(
 					[
