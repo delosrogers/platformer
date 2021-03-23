@@ -17,6 +17,8 @@ type alias Model =
     { player : Player
     , platforms : Platforms
     , alive : Bool
+    , score : Int
+    , highScore : Int
     }
 
 
@@ -55,29 +57,54 @@ platformSpeed =
     0
 
 
+width : Float
+width =
+    400
+
+
+height : Float
+height =
+    700
+
+
 init : () -> ( Model, Cmd Msg )
 init _ =
+    initWithBestScore 0
+
+
+initWithBestScore : Int -> ( Model, Cmd Msg )
+initWithBestScore hs =
     ( { player =
             { x = 50
-            , y = 100
+            , y = 300
             , vX = 0
             , vY = 0
             }
+      , alive = True
       , platforms =
             []
-      , alive = True
+      , score = 0
+      , highScore = hs
       }
-    , Cmd.none
+    , Random.generate GenList genXPos
     )
 
-genPlatforms :
+
+genXPos : Random.Generator (List Float)
+genXPos =
+    Random.list 500 (Random.float 0 width)
 
 
 type Msg
     = OnAnimationFrame Float
     | KeyDown PlayerAction
-    | KeyUp
+    | KeyUp PlayerAction
     | RestartGame
+    | GenList ListOfFloat
+
+
+type alias ListOfFloat =
+    List Float
 
 
 type PlayerAction
@@ -104,23 +131,26 @@ update msg unshifted_model =
     in
     case msg of
         OnAnimationFrame _ ->
-            let
-                updatedPlayer =
-                    updatePlayer model
+            if model.alive then
+                let
+                    updatedPlayer =
+                        updatePlayer model
+                in
+                ( { model
+                    | player = updatedPlayer
+                    , platforms = movePlatforms model.platforms
+                    , alive =
+                        if updatedPlayer.y > height then
+                            False
 
-                updatedModel =
-                    { model
-                        | player = updatedPlayer
-                        , platforms = movePlatforms model.platforms
-                        , alive =
-                            if updatedPlayer.y == 0 then
-                                False
+                        else
+                            True
+                  }
+                , Cmd.none
+                )
 
-                            else
-                                True
-                    }
-            in
-            ( updatedModel, Cmd.none )
+            else
+                ( model, Cmd.none )
 
         KeyDown action ->
             case action of
@@ -136,11 +166,41 @@ update msg unshifted_model =
                 Other ->
                     ( model, Cmd.none )
 
-        KeyUp ->
-            ( { model | player = stopXMotion model.player }, Cmd.none )
+        KeyUp action ->
+            -- ( { model | player = stopXMotion model.player }, Cmd.none )
+            case action of
+                Other ->
+                    ( model, Cmd.none )
+
+                _ ->
+                    ( { model | player = stopXMotion model.player }, Cmd.none )
 
         RestartGame ->
-            init ()
+            initWithBestScore model.highScore
+
+        GenList xPositions ->
+            ( { model
+                | platforms = { x = 0, y = 300, vX = 0, width = width } :: List.indexedMap generatePlatforms xPositions
+              }
+            , Cmd.none
+            )
+
+
+generatePlatforms : Int -> Float -> Platform
+generatePlatforms i xPos =
+    { x = xPos
+    , y = 300 - toFloat (i * 100)
+    , width = toFloat 100
+    , vX =
+        ((0.05 * toFloat i) + 1)
+            * toFloat
+                (if modBy 2 i == 0 then
+                    -1
+
+                 else
+                    1
+                )
+    }
 
 
 shiftModel : Model -> Model
@@ -148,6 +208,9 @@ shiftModel model =
     let
         player =
             model.player
+
+        newScore =
+            model.score + 2
     in
     if model.player.y < 300 then
         { model
@@ -158,6 +221,8 @@ shiftModel model =
                         { platform | y = platform.y + 2 }
                     )
                     model.platforms
+            , score = newScore
+            , highScore = max newScore model.highScore
         }
 
     else
@@ -176,7 +241,7 @@ turnLeft player =
 
 movePlatforms : Platforms -> Platforms
 movePlatforms platforms =
-    List.map (\platform -> { platform | x = platform.x + platform.vX }) platforms
+    List.map (\platform -> { platform | x = (platform.x + platform.vX) |> round |> modBy (round width) |> abs |> toFloat }) platforms
 
 
 stopXMotion : Player -> Player
@@ -214,14 +279,30 @@ updatePlayer model =
             model.platforms
     in
     if playerOnPlatforms player platforms then
-        { player | x = player.x + player.vX, vY = 0 }
+        if player.vY > 0 then
+            { player
+                | x = player.x + player.vX |> playerWrapAround
+                , vY = -1 * player.vY
+                , y = player.y + gravity + 5
+            }
+
+        else
+            { player
+                | x = player.x + player.vX |> playerWrapAround
+                , vY = 0
+            }
 
     else
         { player
-            | x = player.x + player.vX
+            | x = player.x + player.vX |> playerWrapAround
             , vY = player.vY - gravity
             , y = player.y - player.vY
         }
+
+
+playerWrapAround : Float -> Float
+playerWrapAround x =
+    x |> round |> modBy (round width) |> abs |> toFloat
 
 
 playerOnPlatforms : Player -> List Platform -> Bool
@@ -239,7 +320,7 @@ subscriptions model =
     Sub.batch
         [ Browser.Events.onAnimationFrameDelta (\x -> OnAnimationFrame x)
         , Browser.Events.onKeyDown keyDecoder
-        , Browser.Events.onKeyUp (Decode.map (\_ -> KeyUp) (Decode.field "key" Decode.string))
+        , Browser.Events.onKeyUp keyUpDecoder
         ]
 
 
@@ -264,6 +345,23 @@ toDirection string =
             KeyDown Other
 
 
+keyUpDecoder : Decode.Decoder Msg
+keyUpDecoder =
+    Decode.map
+        (\string ->
+            case string of
+                "ArrowLeft" ->
+                    KeyUp Left
+
+                "ArrowRight" ->
+                    KeyUp Right
+
+                _ ->
+                    KeyUp Other
+        )
+        (Decode.field "key" Decode.string)
+
+
 playerOnPlatform : Player -> Platform -> Bool
 playerOnPlatform player platform =
     player.x
@@ -286,13 +384,23 @@ view : Model -> Html.Html Msg
 view model =
     div []
         [ button [ Html.Events.onClick RestartGame ] [ text "reset" ]
-        , Canvas.toHtml
-            ( 1000, 1000 )
-            [ Html.Attributes.style "display" "block" ]
-            [ Canvas.clear ( 0, 0 ) 1000 1000
-            , renderPlayer model.player
-            , renderPlatforms model.platforms
-            ]
+        , text
+            (" your score is "
+                ++ String.fromInt model.score
+                ++ " your high score is "
+                ++ String.fromInt model.highScore
+            )
+        , if model.alive then
+            Canvas.toHtml
+                ( round width, round height )
+                [ Html.Attributes.style "display" "block" ]
+                [ Canvas.clear ( 0, 0 ) width height
+                , renderPlayer model.player
+                , renderPlatforms model.platforms
+                ]
+
+          else
+            text " you died "
         ]
 
 
@@ -303,7 +411,7 @@ renderPlayer player =
 
 renderPlatforms : Platforms -> Canvas.Renderable
 renderPlatforms platforms =
-    Canvas.shapes [ Canvas.Settings.fill Color.red ]
+    Canvas.shapes []
         (List.map
             (\platform ->
                 Canvas.rect ( platform.x, platform.y )
