@@ -9,7 +9,7 @@ import Color
 import Config
 import GameLogic exposing (..)
 import Html exposing (button, div, text)
-import Html.Attributes exposing (width)
+import Html.Attributes
 import Html.Events
 import Json.Decode as Decode
 import Random
