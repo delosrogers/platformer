@@ -6,65 +6,14 @@ import Browser.Events
 import Canvas
 import Canvas.Settings
 import Color
+import Config
+import GameLogic exposing (..)
 import Html exposing (button, div, text)
 import Html.Attributes exposing (width)
 import Html.Events
 import Json.Decode as Decode
 import Random
-
-
-type alias Model =
-    { player : Player
-    , platforms : Platforms
-    , alive : Bool
-    , score : Int
-    , highScore : Int
-    }
-
-
-type alias Platforms =
-    List Platform
-
-
-type alias Player =
-    { x : Float
-    , y : Float
-    , vX : Float
-    , vY : Float
-    }
-
-
-type alias Platform =
-    { x : Float
-    , y : Float
-    , width : Float
-    , vX : Float
-    }
-
-
-platformHeight : Float
-platformHeight =
-    10
-
-
-playerSpeed : Float
-playerSpeed =
-    5
-
-
-platformSpeed : Float
-platformSpeed =
-    0
-
-
-width : Float
-width =
-    400
-
-
-height : Float
-height =
-    700
+import Types exposing (..)
 
 
 init : () -> ( Model, Cmd Msg )
@@ -92,26 +41,7 @@ initWithBestScore hs =
 
 genXPos : Random.Generator (List Float)
 genXPos =
-    Random.list 500 (Random.float 0 width)
-
-
-type Msg
-    = OnAnimationFrame Float
-    | KeyDown PlayerAction
-    | KeyUp PlayerAction
-    | RestartGame
-    | GenList ListOfFloat
-
-
-type alias ListOfFloat =
-    List Float
-
-
-type PlayerAction
-    = Jump
-    | Left
-    | Right
-    | Other
+    Random.list 500 (Random.float 0 Config.width)
 
 
 main =
@@ -140,7 +70,7 @@ update msg unshifted_model =
                     | player = updatedPlayer
                     , platforms = movePlatforms model.platforms
                     , alive =
-                        if updatedPlayer.y > height then
+                        if updatedPlayer.y > Config.height then
                             False
 
                         else
@@ -180,7 +110,9 @@ update msg unshifted_model =
 
         GenList xPositions ->
             ( { model
-                | platforms = { x = 0, y = 300, vX = 0, width = width } :: List.indexedMap generatePlatforms xPositions
+                | platforms =
+                    { x = 0, y = 300, vX = 0, width = Config.width }
+                        :: List.indexedMap generatePlatforms xPositions
               }
             , Cmd.none
             )
@@ -203,120 +135,12 @@ generatePlatforms i xPos =
     }
 
 
-shiftModel : Model -> Model
-shiftModel model =
-    let
-        player =
-            model.player
-
-        newScore =
-            model.score + 2
-    in
-    if model.player.y < 300 then
-        { model
-            | player = { player | y = player.y + 2 }
-            , platforms =
-                List.map
-                    (\platform ->
-                        { platform | y = platform.y + 2 }
-                    )
-                    model.platforms
-            , score = newScore
-            , highScore = max newScore model.highScore
-        }
-
-    else
-        model
-
-
-turnRight : Player -> Player
-turnRight player =
-    { player | vX = playerSpeed }
-
-
-turnLeft : Player -> Player
-turnLeft player =
-    { player | vX = -1 * playerSpeed }
-
-
-movePlatforms : Platforms -> Platforms
-movePlatforms platforms =
-    List.map (\platform -> { platform | x = (platform.x + platform.vX) |> round |> modBy (round width) |> abs |> toFloat }) platforms
-
-
-stopXMotion : Player -> Player
-stopXMotion player =
-    { player | vX = 0 }
-
-
-jumpPlayer : Model -> Model
-jumpPlayer model =
-    let
-        player =
-            model.player
-    in
-    if playerOnPlatforms player model.platforms then
-        { model
-            | player =
-                { player | vY = player.vY + 5, y = player.y - platformHeight - 1 }
-        }
-
-    else
-        model
-
-
-gravity =
-    0.1
-
-
-updatePlayer : Model -> Player
-updatePlayer model =
-    let
-        player =
-            model.player
-
-        platforms =
-            model.platforms
-    in
-    if playerOnPlatforms player platforms then
-        if player.vY > 0 then
-            { player
-                | x = player.x + player.vX |> playerWrapAround
-                , vY = -1 * player.vY
-                , y = player.y + gravity + 5
-            }
-
-        else
-            { player
-                | x = player.x + player.vX |> playerWrapAround
-                , vY = 0
-            }
-
-    else
-        { player
-            | x = player.x + player.vX |> playerWrapAround
-            , vY = player.vY - gravity
-            , y = player.y - player.vY
-        }
-
-
-playerWrapAround : Float -> Float
-playerWrapAround x =
-    x |> round |> modBy (round width) |> abs |> toFloat
-
-
-playerOnPlatforms : Player -> List Platform -> Bool
-playerOnPlatforms player platforms =
-    List.map (playerOnPlatform player) platforms
-        |> List.any (\x -> x)
-
-
 
 -- SUBSCRIPTIONS
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.batch
         [ Browser.Events.onAnimationFrameDelta (\x -> OnAnimationFrame x)
         , Browser.Events.onKeyDown keyDecoder
@@ -362,20 +186,6 @@ keyUpDecoder =
         (Decode.field "key" Decode.string)
 
 
-playerOnPlatform : Player -> Platform -> Bool
-playerOnPlatform player platform =
-    player.x
-        > platform.x
-        && player.x
-        < platform.x
-        + platform.width
-        && player.y
-        > platform.y
-        && player.y
-        < platform.y
-        + platformHeight
-
-
 
 -- VIEW
 
@@ -392,9 +202,9 @@ view model =
             )
         , if model.alive then
             Canvas.toHtml
-                ( round width, round height )
+                ( round Config.width, round Config.height )
                 [ Html.Attributes.style "display" "block" ]
-                [ Canvas.clear ( 0, 0 ) width height
+                [ Canvas.clear ( 0, 0 ) Config.width Config.height
                 , renderPlayer model.player
                 , renderPlatforms model.platforms
                 ]
@@ -416,7 +226,7 @@ renderPlatforms platforms =
             (\platform ->
                 Canvas.rect ( platform.x, platform.y )
                     platform.width
-                    platformHeight
+                    Config.platformHeight
             )
             platforms
         )
