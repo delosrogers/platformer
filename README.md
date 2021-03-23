@@ -1,6 +1,6 @@
 # Platformer
 
-A vertical scoring platformer written in Elm
+A vertical scroling platformer written in Elm
 
 ---
 
