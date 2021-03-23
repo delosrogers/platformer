@@ -207,18 +207,20 @@ keyUpDecoder =
 
 view : Model -> Html.Html Msg
 view model =
-    div []
-        [ button [ Html.Events.onClick RestartGame ] [ text "reset" ]
-        , text
-            (" your score is "
-                ++ String.fromInt model.score
-                ++ " your high score is "
-                ++ String.fromInt model.highScore
-            )
+    div [ Html.Attributes.classList [ ( "container", True ) ] ]
+        [ button [ Html.Events.onClick RestartGame, Html.Attributes.class "btn-primary" ] [ text "reset" ]
+        , div [ Html.Attributes.class "center-block" ]
+            [ text
+                (" your score is "
+                    ++ String.fromInt model.score
+                    ++ " your high score is "
+                    ++ String.fromInt model.highScore
+                )
+            ]
         , if model.alive then
             Canvas.toHtml
                 ( round Config.width - 100, round Config.height )
-                [ Html.Attributes.style "display" "block" ]
+                [ Html.Attributes.style "display" "block", Html.Attributes.class "center-block" ]
                 [ Canvas.clear ( 0, 0 ) Config.width Config.height
                 , renderPlayer model.player
                 , renderPlatforms model.platforms

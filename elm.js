@@ -6217,6 +6217,40 @@ var $author$project$Main$update = F2(
 	});
 var $author$project$Types$RestartGame = {$: 3};
 var $elm$html$Html$button = _VirtualDom_node('button');
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $elm$core$Tuple$second = function (_v0) {
+	var y = _v0.b;
+	return y;
+};
+var $elm$html$Html$Attributes$classList = function (classes) {
+	return $elm$html$Html$Attributes$class(
+		A2(
+			$elm$core$String$join,
+			' ',
+			A2(
+				$elm$core$List$map,
+				$elm$core$Tuple$first,
+				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
+};
 var $joakin$elm_canvas$Canvas$Internal$Canvas$DrawableClear = F3(
 	function (a, b, c) {
 		return {$: 3, a: a, b: b, c: c};
@@ -6484,7 +6518,6 @@ var $elm$json$Json$Encode$object = function (pairs) {
 			_Json_emptyObject(0),
 			pairs));
 };
-var $elm$json$Json$Encode$string = _Json_wrap;
 var $joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$fn = F2(
 	function (name, args) {
 		return $elm$json$Json$Encode$object(
@@ -7095,13 +7128,6 @@ var $joakin$elm_canvas$Canvas$Internal$Texture$decodeTextureImage = A2(
 	$elm$json$Json$Decode$value);
 var $joakin$elm_canvas$Canvas$Internal$Texture$decodeImageLoadEvent = A2($elm$json$Json$Decode$field, 'target', $joakin$elm_canvas$Canvas$Internal$Texture$decodeTextureImage);
 var $elm$html$Html$img = _VirtualDom_node('img');
-var $elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$string(string));
-	});
 var $elm$html$Html$Attributes$src = function (url) {
 	return A2(
 		$elm$html$Html$Attributes$stringProperty,
@@ -7172,21 +7198,38 @@ var $joakin$elm_canvas$Canvas$toHtml = F3(
 var $author$project$Main$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
-		_List_Nil,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$classList(
+				_List_fromArray(
+					[
+						_Utils_Tuple2('container', true)
+					]))
+			]),
 		_List_fromArray(
 			[
 				A2(
 				$elm$html$Html$button,
 				_List_fromArray(
 					[
-						$elm$html$Html$Events$onClick($author$project$Types$RestartGame)
+						$elm$html$Html$Events$onClick($author$project$Types$RestartGame),
+						$elm$html$Html$Attributes$class('btn-primary')
 					]),
 				_List_fromArray(
 					[
 						$elm$html$Html$text('reset')
 					])),
-				$elm$html$Html$text(
-				' your score is ' + ($elm$core$String$fromInt(model.aC) + (' your high score is ' + $elm$core$String$fromInt(model.aj)))),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('center-block')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						' your score is ' + ($elm$core$String$fromInt(model.aC) + (' your high score is ' + $elm$core$String$fromInt(model.aj))))
+					])),
 				model.N ? A3(
 				$joakin$elm_canvas$Canvas$toHtml,
 				_Utils_Tuple2(
@@ -7194,7 +7237,8 @@ var $author$project$Main$view = function (model) {
 					$elm$core$Basics$round($author$project$Config$height)),
 				_List_fromArray(
 					[
-						A2($elm$html$Html$Attributes$style, 'display', 'block')
+						A2($elm$html$Html$Attributes$style, 'display', 'block'),
+						$elm$html$Html$Attributes$class('center-block')
 					]),
 				_List_fromArray(
 					[
