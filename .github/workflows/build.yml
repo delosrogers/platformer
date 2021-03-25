@@ -41,5 +41,5 @@ jobs:
           cd backend
           npm install .
       - name: build
-        run: tsc src/app.ts
+        run: cd backend && tsc
       
