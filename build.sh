@@ -1,1 +1,1 @@
-elm make src/Main.elm --output=backend/dist/elm.js
+elm make src/Main.elm --output=backend/dist/static/elm.js
