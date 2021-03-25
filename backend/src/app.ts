@@ -6,7 +6,7 @@ import { model, Schema, Model, Document } from 'mongoose';
 
 interface IUser extends Document {
     name: string,
-    highscore: number
+    highScore: number
 }
 
 const UserSchema: Schema = new Schema({
@@ -22,15 +22,15 @@ app.use(express.json());
 
 const port = 3000;
 app.get('/', (req, res) => {
-    console.log(req);
     res.sendFile(path.join(__dirname + '/static/elm.html'));
 });
 
 app.get('/elm.js', (req, res) => {
-    res.sendFile(path.join(__dirname + '/static/elm.js'))
+    res.sendFile(path.join(__dirname + '/static/elm.js'));
 });
 
 app.get('/api/v1/u/:id', async (req, res) => {
+    console.log("got an api get request");
     const userID = req.params.id;
     const user: IUser = await getUser(userID);
     res.send(user);
@@ -50,7 +50,6 @@ app.put('/api/v1/u/:id/highscore', async (req, res) => {
     res.sendStatus(200);
 })
 
-app.get('/')
 app.listen(port, () => console.log("serving on port" + port));
 
 async function getUser(id: string): Promise<IUser> {

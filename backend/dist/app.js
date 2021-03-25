@@ -25,13 +25,13 @@ const app = express_1.default();
 app.use(express_1.default.json());
 const port = 3000;
 app.get('/', (req, res) => {
-    console.log(req);
     res.sendFile(path_1.default.join(__dirname + '/static/elm.html'));
 });
 app.get('/elm.js', (req, res) => {
     res.sendFile(path_1.default.join(__dirname + '/static/elm.js'));
 });
 app.get('/api/v1/u/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("got an api get request");
     const userID = req.params.id;
     const user = yield getUser(userID);
     res.send(user);
@@ -45,9 +45,8 @@ app.put('/api/v1/u/:id/highscore', (req, res) => __awaiter(void 0, void 0, void 
     const id = req.params.id;
     const score = req.body.score;
     yield newHighScore(score, id);
-    res.send(200);
+    res.sendStatus(200);
 }));
-app.get('/');
 app.listen(port, () => console.log("serving on port" + port));
 function getUser(id) {
     return __awaiter(this, void 0, void 0, function* () {

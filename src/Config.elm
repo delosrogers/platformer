@@ -1,6 +1,10 @@
 module Config exposing (..)
 
 
+apiURL =
+    "http://localhost:3000/api/v1/"
+
+
 gravity =
     0.1
 
