@@ -129,6 +129,7 @@ app.get('/api/v1/u/:id', async (req, res) => {
     if (user) {
         res.send(user);
     } else {
+        console.log("couldn't find user");
         res.sendStatus(404);
     }
 });
@@ -198,6 +199,7 @@ async function newHighScore(score: number, id: string) {
 
     let user = await User.findOne({ _id: id });
     if (!user) {
+        console.log("couldn't find user");
         throw new Error('No Such User');
     }
 
