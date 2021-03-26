@@ -19,7 +19,6 @@ const mongoose = require("mongoose");
 const mongoose_2 = require("mongoose");
 const passport_1 = __importDefault(require("passport"));
 const passport_google_oauth_1 = __importDefault(require("passport-google-oauth"));
-const mongoose_findorcreate_1 = __importDefault(require("mongoose-findorcreate"));
 const cookie_session_1 = __importDefault(require("cookie-session"));
 const crypto_random_string_1 = __importDefault(require("crypto-random-string"));
 const GoogleStrategy = passport_google_oauth_1.default.OAuth2Strategy;
@@ -54,16 +53,16 @@ const UserSchema = new mongoose_2.Schema({
     highScore: { type: Number, required: true },
     googleId: { type: String, required: true },
 });
-UserSchema.plugin(mongoose_findorcreate_1.default);
 const User = mongoose_2.model('User', UserSchema);
 const app = express_1.default();
 app.use(express_1.default.json());
 app.use(cookie_session_1.default({
     maxAge: 24 * 60 * 60 * 1000,
-    keys: [crypto_random_string_1.default({ length: 20 })]
+    keys: [crypto_random_string_1.default({ length: 64 })]
 }));
 app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());
+app.set('view engine', 'ejs');
 passport_1.default.serializeUser(function (user, done) {
     done(null, user._id);
 });
@@ -73,8 +72,7 @@ passport_1.default.deserializeUser(function (id, done) {
 });
 const port = 3000;
 app.get('/', (req, res) => {
-    console.log('current user', req.user);
-    res.sendFile(path_1.default.join(__dirname + '/static/elm.html'));
+    res.render('elm.ejs', { user: req.user });
 });
 app.get('/elm.js', (req, res) => {
     res.sendFile(path_1.default.join(__dirname + '/static/elm.js'));
@@ -83,6 +81,11 @@ app.get('/auth/google', passport_1.default.authenticate('google', { scope: ['htt
 app.get('/auth/google/callback', passport_1.default.authenticate('google', { failureRedirect: '/' }), (req, res) => res.redirect('/'));
 app.get('/api/v1/u/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userID = req.params.id;
+    const currUser = req.user;
+    if (userID != (currUser === null || currUser === void 0 ? void 0 : currUser._id)) {
+        res.sendStatus(404);
+        return;
+    }
     const user = yield getUser(userID);
     if (user) {
         res.send(user);
@@ -92,17 +95,22 @@ app.get('/api/v1/u/:id', (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 }));
 app.post('/api/v1/u', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const userName = req.body.name;
-    const id = yield newUser(userName);
-    if (id) {
-        res.send({ _id: id, name: userName, highScore: 0 });
-    }
-    else {
-        res.sendStatus(418);
-    }
+    res.sendStatus(418);
+    // const userName = req.body.name;
+    // const id = await newUser(userName);
+    // if (id) {
+    //     res.send({ _id: id, name: userName, highScore: 0 });
+    // } else {
+    //     res.sendStatus(418);
+    // }
 }));
 app.put('/api/v1/u/:id/highscore', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
+    const currUser = req.user;
+    if (id != (currUser === null || currUser === void 0 ? void 0 : currUser._id)) {
+        res.sendStatus(404);
+        return;
+    }
     const score = req.body.score;
     try {
         yield newHighScore(score, id);
@@ -128,19 +136,17 @@ function getUser(id) {
         return yield User.findById(id).exec();
     });
 }
-function newUser(name) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield mongoose_1.connect('mongodb://localhost:27017/platformer', {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        });
-        const user = yield User.create({
-            name: name,
-            highScore: 0,
-        });
-        return user._id.toString();
-    });
-}
+// async function newUser(name: string): Promise<string> {
+//     await connect('mongodb://localhost:27017/platformer', {
+//         useNewUrlParser: true,
+//         useUnifiedTopology: true
+//     });
+//     const user: IUser = await User.create({
+//         name: name,
+//         highScore: 0,
+//     });
+//     return user._id.toString();
+// }
 function newHighScore(score, id) {
     return __awaiter(this, void 0, void 0, function* () {
         yield mongoose_1.connect('mongodb://localhost:27017/platformer', {

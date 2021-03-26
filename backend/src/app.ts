@@ -5,7 +5,6 @@ import mongoose = require('mongoose')
 import { model, Schema, Model, Document } from 'mongoose';
 import passport from 'passport';
 import Google from 'passport-google-oauth';
-import findOrCreate from 'mongoose-findorcreate'
 import cookieSession from 'cookie-session'
 import cryptoRandomString from 'crypto-random-string'
 
@@ -23,7 +22,7 @@ passport.use(new GoogleStrategy({
             useUnifiedTopology: true
         });
 
-        User.findOne({ googleId: profile.id }, (err, user) => {
+        User.findOne({ googleId: profile.id }, (err: any, user: IUser) => {
             if (user) {
                 done(err, user);
             } else {
@@ -31,7 +30,7 @@ passport.use(new GoogleStrategy({
                     googleId: profile.id,
                     name: profile.displayName,
                     highScore: 0,
-                }, (err, user) => {
+                }, (err: any, user: IUser) => {
                     done(err, user);
                 });
             }
@@ -54,7 +53,6 @@ const UserSchema: Schema = new Schema({
     googleId: { type: String, required: true },
 });
 
-UserSchema.plugin(findOrCreate);
 
 const User: Model<IUser> = model('User', UserSchema);
 
@@ -67,6 +65,7 @@ app.use(cookieSession({
 }));
 app.use(passport.initialize())
 app.use(passport.session());
+app.set('view engine', 'ejs');
 
 
 
@@ -77,15 +76,14 @@ passport.serializeUser(function (user: IUser, done) {
 passport.deserializeUser(function (id, done) {
     User.findById(id)
         .then(
-            (user) => done(null, user)
+            (user: IUser) => done(null, user)
         );
 });
 
 
 const port = 3000;
 app.get('/', (req, res) => {
-    console.log('current user', req.user)
-    res.sendFile(path.join(__dirname + '/static/elm.html'));
+    res.render('elm.ejs', { user: req.user });
 });
 
 app.get('/elm.js', (req, res) => {
@@ -102,6 +100,11 @@ app.get('/auth/google/callback', passport.authenticate('google', { failureRedire
 
 app.get('/api/v1/u/:id', async (req, res) => {
     const userID = req.params.id;
+    const currUser: any = req.user;
+    if (userID != currUser?._id) {
+        res.sendStatus(404);
+        return;
+    }
     const user: IUser = await getUser(userID);
     if (user) {
         res.send(user);
@@ -111,18 +114,24 @@ app.get('/api/v1/u/:id', async (req, res) => {
 });
 
 app.post('/api/v1/u', async (req, res) => {
-    const userName = req.body.name;
-    const id = await newUser(userName);
-    if (id) {
-        res.send({ _id: id, name: userName, highScore: 0 });
-    } else {
-        res.sendStatus(418);
-    }
+    res.sendStatus(418);
+    // const userName = req.body.name;
+    // const id = await newUser(userName);
+    // if (id) {
+    //     res.send({ _id: id, name: userName, highScore: 0 });
+    // } else {
+    //     res.sendStatus(418);
+    // }
 
 });
 
 app.put('/api/v1/u/:id/highscore', async (req, res) => {
     const id: string = req.params.id;
+    const currUser: any = req.user;
+    if (id != currUser?._id) {
+        res.sendStatus(404);
+        return;
+    }
     const score: number = req.body.score;
     try {
         await newHighScore(score, id);
@@ -148,19 +157,19 @@ async function getUser(id: string): Promise<IUser> {
     return await User.findById(id).exec();
 }
 
-async function newUser(name: string): Promise<string> {
-    await connect('mongodb://localhost:27017/platformer', {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    });
+// async function newUser(name: string): Promise<string> {
+//     await connect('mongodb://localhost:27017/platformer', {
+//         useNewUrlParser: true,
+//         useUnifiedTopology: true
+//     });
 
-    const user: IUser = await User.create({
-        name: name,
-        highScore: 0,
-    });
+//     const user: IUser = await User.create({
+//         name: name,
+//         highScore: 0,
+//     });
 
-    return user._id.toString();
-}
+//     return user._id.toString();
+// }
 
 async function newHighScore(score: number, id: string) {
     await connect('mongodb://localhost:27017/platformer', {

@@ -18,13 +18,21 @@ import Random
 import Types exposing (..)
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
-    initWithBestScoreNameAndId 0 Nothing Nothing
+init : String -> ( Model, Cmd Msg )
+init id =
+    initWithBestScoreNameAndId 0
+        Nothing
+        (if id == "a" then
+            Nothing
+
+         else
+            Just id
+        )
+        True
 
 
-initWithBestScoreNameAndId : Int -> Maybe String -> Maybe String -> ( Model, Cmd Msg )
-initWithBestScoreNameAndId hs name id =
+initWithBestScoreNameAndId : Int -> Maybe String -> Maybe String -> Bool -> ( Model, Cmd Msg )
+initWithBestScoreNameAndId hs name id fetchState =
     ( { player =
             { x = 150
             , y = 300
@@ -40,7 +48,11 @@ initWithBestScoreNameAndId hs name id =
       , message = Nothing
       , userID = id
       }
-    , Random.generate GenList genXPos
+    , if fetchState then
+        Cmd.batch [ Random.generate GenList genXPos, getScore id ]
+
+      else
+        Random.generate GenList genXPos
     )
 
 
@@ -76,6 +88,17 @@ saveScore model =
         , expect = Http.expectWhatever SavedHighScore
         , timeout = Nothing
         , tracker = Nothing
+        }
+
+
+getScore : Maybe String -> Cmd Msg
+getScore userID =
+    Http.get
+        { url =
+            Config.apiURL
+                ++ "u/"
+                ++ Maybe.withDefault "" userID
+        , expect = Http.expectJson ApiRespRecieved apiDecoder
         }
 
 
@@ -123,13 +146,7 @@ update msg unshifted_model =
 
         GetScoreAndName ->
             ( model
-            , Http.get
-                { url =
-                    Config.apiURL
-                        ++ "u/"
-                        ++ Maybe.withDefault "" model.userID
-                , expect = Http.expectJson ApiRespRecieved apiDecoder
-                }
+            , getScore model.userID
             )
 
         IdInput newId ->
@@ -185,7 +202,7 @@ update msg unshifted_model =
                     ( { model | player = stopXMotion model.player }, Cmd.none )
 
         RestartGame ->
-            initWithBestScoreNameAndId model.highScore model.name model.userID
+            initWithBestScoreNameAndId model.highScore model.name model.userID False
 
         GenList xPositions ->
             ( { model
@@ -289,14 +306,13 @@ view model =
     div [ Html.Attributes.classList [ ( "container", True ) ] ]
         [ button [ Html.Events.onClick RestartGame, Html.Attributes.class "btn-primary" ] [ text "reset" ]
         , div []
-            [ Html.input
-                [ Html.Attributes.placeholder "User ID"
-                , Html.Attributes.value (Maybe.withDefault "" model.userID)
-                , Html.Events.onInput IdInput
-                ]
-                []
-            , Html.button [ Html.Events.onClick SaveScore ] [ Html.text "save" ]
-            , Html.button [ Html.Events.onClick GetScoreAndName ] [ Html.text "get state" ]
+            [ Html.button [ Html.Events.onClick SaveScore ] [ Html.text "save" ]
+            , case model.userID of
+                Just _ ->
+                    text " signed in "
+
+                Nothing ->
+                    Html.a [ Html.Attributes.href "/auth/google" ] [ text "sign in with google (this will cause you to lose your highscore)" ]
             ]
         , div [ Html.Attributes.class "center-block" ]
             [ text

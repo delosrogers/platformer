@@ -32,7 +32,7 @@ updatePlayer model =
 
             else
                 { player
-                    | x = player.x + player.vX + platform.vX |> playerWrapAround
+                    | x = player.x + player.vX |> playerWrapAround
                     , vY = 0
                 }
 
