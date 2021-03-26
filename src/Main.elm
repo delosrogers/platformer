@@ -8,21 +8,23 @@ import Canvas.Settings
 import Color
 import Config
 import GameLogic exposing (..)
-import Html exposing (button, div, text)
+import Html exposing (button, div, span, text)
 import Html.Attributes
 import Html.Events
+import Http
 import Json.Decode as Decode
+import Json.Encode as Encode
 import Random
 import Types exposing (..)
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    initWithBestScore 0
+    initWithBestScoreNameAndId 0 Nothing Nothing
 
 
-initWithBestScore : Int -> ( Model, Cmd Msg )
-initWithBestScore hs =
+initWithBestScoreNameAndId : Int -> Maybe String -> Maybe String -> ( Model, Cmd Msg )
+initWithBestScoreNameAndId hs name id =
     ( { player =
             { x = 150
             , y = 300
@@ -34,6 +36,9 @@ initWithBestScore hs =
             []
       , score = 0
       , highScore = hs
+      , name = name
+      , message = Nothing
+      , userID = id
       }
     , Random.generate GenList genXPos
     )
@@ -53,6 +58,14 @@ main =
         }
 
 
+apiDecoder : Decode.Decoder ScoreApiRes
+apiDecoder =
+    Decode.map3 ScoreApiRes
+        (Decode.field "_id" Decode.string)
+        (Decode.field "name" Decode.string)
+        (Decode.field "highScore" Decode.int)
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg unshifted_model =
     let
@@ -60,6 +73,63 @@ update msg unshifted_model =
             shiftModel unshifted_model
     in
     case msg of
+        ApiRespRecieved resp ->
+            case resp of
+                Ok playerInfo ->
+                    ( { model
+                        | highScore = max model.highScore playerInfo.highScore
+                        , name = Just playerInfo.name
+                        , message = Nothing
+                      }
+                    , Cmd.none
+                    )
+
+                Err _ ->
+                    ( { model | message = Just "Something went wrong fetching your score and name" }, Cmd.none )
+
+        SavedHighScore resp ->
+            case resp of
+                Ok _ ->
+                    ( { model | message = Just "saved" }, Cmd.none )
+
+                Err _ ->
+                    ( { model | message = Just "Something went wrong saving your score" }, Cmd.none )
+
+        SaveScore ->
+            ( model
+            , Http.request
+                { method = "PUT"
+                , headers = []
+                , url =
+                    Config.apiURL
+                        ++ "u/"
+                        ++ Maybe.withDefault "" model.userID
+                        ++ "/highscore"
+                , body =
+                    Http.jsonBody
+                        (Encode.object
+                            [ ( "score", Encode.int model.highScore ) ]
+                        )
+                , expect = Http.expectWhatever SavedHighScore
+                , timeout = Nothing
+                , tracker = Nothing
+                }
+            )
+
+        GetScoreAndName ->
+            ( model
+            , Http.get
+                { url =
+                    Config.apiURL
+                        ++ "u/"
+                        ++ Maybe.withDefault "" model.userID
+                , expect = Http.expectJson ApiRespRecieved apiDecoder
+                }
+            )
+
+        IdInput newId ->
+            ( { model | userID = Just newId }, Cmd.none )
+
         OnAnimationFrame _ ->
             if model.alive then
                 let
@@ -106,7 +176,7 @@ update msg unshifted_model =
                     ( { model | player = stopXMotion model.player }, Cmd.none )
 
         RestartGame ->
-            initWithBestScore model.highScore
+            initWithBestScoreNameAndId model.highScore model.name model.userID
 
         GenList xPositions ->
             ( { model
@@ -209,14 +279,32 @@ view : Model -> Html.Html Msg
 view model =
     div [ Html.Attributes.classList [ ( "container", True ) ] ]
         [ button [ Html.Events.onClick RestartGame, Html.Attributes.class "btn-primary" ] [ text "reset" ]
+        , div []
+            [ Html.input
+                [ Html.Attributes.placeholder "User ID"
+                , Html.Attributes.value (Maybe.withDefault "" model.userID)
+                , Html.Events.onInput IdInput
+                ]
+                []
+            , Html.button [ Html.Events.onClick SaveScore ] [ Html.text "save" ]
+            , Html.button [ Html.Events.onClick GetScoreAndName ] [ Html.text "get state" ]
+            ]
         , div [ Html.Attributes.class "center-block" ]
             [ text
-                (" your score is "
+                ("Hi "
+                    ++ Maybe.withDefault "" model.name
+                    ++ " your score is "
                     ++ String.fromInt model.score
                     ++ " your high score is "
                     ++ String.fromInt model.highScore
                 )
             ]
+        , case model.message of
+            Just msg ->
+                div [] [ text msg ]
+
+            Nothing ->
+                span [] []
         , if model.alive then
             Canvas.toHtml
                 ( round Config.width - 100, round Config.height )

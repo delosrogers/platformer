@@ -5,7 +5,10 @@
   "main": "dist/app.js",
   "scripts": {
     "start": "tsc && node dist/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pretmp-db": "docker run -d --rm --name platformer-test-mongo -p 27017:27017 mongo",
+    "tmp-db": "tsc && node dist/app.js",
+    "posttmp-db": "docker stop platformer-test-mongo"
   },
   "repository": {
     "type": "git",
@@ -24,6 +27,8 @@
     "typescript": "^4.2.3"
   },
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "helmet": "^4.4.1",
+    "mongoose": "^5.12.2"
   }
 }

@@ -1,5 +1,7 @@
 module Types exposing (..)
 
+import Http
+
 
 type alias Model =
     { player : Player
@@ -7,6 +9,9 @@ type alias Model =
     , alive : Bool
     , score : Int
     , highScore : Int
+    , name : Maybe String
+    , message : Maybe String
+    , userID : Maybe String
     }
 
 
@@ -30,12 +35,24 @@ type alias Platform =
     }
 
 
+type alias ScoreApiRes =
+    { id : String
+    , name : String
+    , highScore : Int
+    }
+
+
 type Msg
     = OnAnimationFrame Float
     | KeyDown PlayerAction
     | KeyUp PlayerAction
     | RestartGame
     | GenList ListOfFloat
+    | ApiRespRecieved (Result Http.Error ScoreApiRes)
+    | SavedHighScore (Result Http.Error ())
+    | SaveScore
+    | GetScoreAndName
+    | IdInput String
 
 
 type alias ListOfFloat =
