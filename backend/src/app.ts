@@ -7,7 +7,11 @@ import passport from 'passport';
 import Google from 'passport-google-oauth';
 import cookieSession from 'cookie-session'
 import cryptoRandomString from 'crypto-random-string'
+import http from 'http';
+import https from 'https';
+import fs from 'fs';
 
+;
 const GoogleStrategy = Google.OAuth2Strategy;
 
 require('dotenv').config();
@@ -66,122 +70,127 @@ app.use(cookieSession({
 app.use(passport.initialize())
 app.use(passport.session());
 app.set('view engine', 'ejs');
+if (process.env.DEV != "TRUE") {
+    const privateKey = fs.readFileSync(process.env.PRIVKEYPATH, 'utf8');
+    const certificate = fs.readFileSync(process.env.CERTPATH, 'utf8');
+    const credentials = { key: privateKey, cert: certificate };
+    const httpsServer = https.createServer(credentials, app);
+    httpsServer.listen(3000);
+} else {
+    const port = 3000;
+    app.listen(port, () => console.log("listening on port ", port))
+
+    passport.serializeUser(function (user: IUser, done) {
+        done(null, user._id);
+    });
+
+    passport.deserializeUser(function (id, done) {
+        User.findById(id)
+            .then(
+                (user: IUser) => done(null, user)
+            );
+    });
 
 
+    app.get('/', (req, res) => {
+        res.render('elm.ejs', { user: req.user });
+    });
 
-passport.serializeUser(function (user: IUser, done) {
-    done(null, user._id);
-});
+    app.get('/elm.js', (req, res) => {
+        res.sendFile(path.join(__dirname + '/static/elm.js'));
+    });
 
-passport.deserializeUser(function (id, done) {
-    User.findById(id)
-        .then(
-            (user: IUser) => done(null, user)
-        );
-});
+    app.get('/auth/google',
+        passport.authenticate(
+            'google',
+            { scope: ['https://www.googleapis.com/auth/plus.login', 'profile', 'email'] }));
+
+    app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }),
+        (req, res) => res.redirect('/'));
+
+    app.get('/api/v1/u/:id', async (req, res) => {
+        const userID = req.params.id;
+        const currUser: any = req.user;
+        if (userID != currUser?._id) {
+            res.sendStatus(404);
+            return;
+        }
+        const user: IUser = await getUser(userID);
+        if (user) {
+            res.send(user);
+        } else {
+            res.sendStatus(404);
+        }
+    });
+
+    app.post('/api/v1/u', async (req, res) => {
+        res.sendStatus(418);
+        // const userName = req.body.name;
+        // const id = await newUser(userName);
+        // if (id) {
+        //     res.send({ _id: id, name: userName, highScore: 0 });
+        // } else {
+        //     res.sendStatus(418);
+        // }
+
+    });
+
+    app.put('/api/v1/u/:id/highscore', async (req, res) => {
+        const id: string = req.params.id;
+        const currUser: any = req.user;
+        if (id != currUser?._id) {
+            res.sendStatus(404);
+            return;
+        }
+        const score: number = req.body.score;
+        try {
+            await newHighScore(score, id);
+            res.sendStatus(200);
+        } catch (e) {
+            console.log(e.message);
+            if (e.message == "No Such User") {
+                res.sendStatus(404);
+            } else {
+                res.sendStatus(418);
+            }
+        }
+    })
 
 
-const port = 3000;
-app.get('/', (req, res) => {
-    res.render('elm.ejs', { user: req.user });
-});
+    async function getUser(id: string): Promise<IUser> {
+        await connect('mongodb://localhost:27017/platformer', {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
 
-app.get('/elm.js', (req, res) => {
-    res.sendFile(path.join(__dirname + '/static/elm.js'));
-});
-
-app.get('/auth/google',
-    passport.authenticate(
-        'google',
-        { scope: ['https://www.googleapis.com/auth/plus.login', 'profile', 'email'] }));
-
-app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }),
-    (req, res) => res.redirect('/'));
-
-app.get('/api/v1/u/:id', async (req, res) => {
-    const userID = req.params.id;
-    const currUser: any = req.user;
-    if (userID != currUser?._id) {
-        res.sendStatus(404);
-        return;
+        return await User.findById(id).exec();
     }
-    const user: IUser = await getUser(userID);
-    if (user) {
-        res.send(user);
-    } else {
-        res.sendStatus(404);
-    }
-});
 
-app.post('/api/v1/u', async (req, res) => {
-    res.sendStatus(418);
-    // const userName = req.body.name;
-    // const id = await newUser(userName);
-    // if (id) {
-    //     res.send({ _id: id, name: userName, highScore: 0 });
-    // } else {
-    //     res.sendStatus(418);
+    // async function newUser(name: string): Promise<string> {
+    //     await connect('mongodb://localhost:27017/platformer', {
+    //         useNewUrlParser: true,
+    //         useUnifiedTopology: true
+    //     });
+
+    //     const user: IUser = await User.create({
+    //         name: name,
+    //         highScore: 0,
+    //     });
+
+    //     return user._id.toString();
     // }
 
-});
+    async function newHighScore(score: number, id: string) {
+        await connect('mongodb://localhost:27017/platformer', {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
 
-app.put('/api/v1/u/:id/highscore', async (req, res) => {
-    const id: string = req.params.id;
-    const currUser: any = req.user;
-    if (id != currUser?._id) {
-        res.sendStatus(404);
-        return;
-    }
-    const score: number = req.body.score;
-    try {
-        await newHighScore(score, id);
-        res.sendStatus(200);
-    } catch (e) {
-        console.log(e.message);
-        if (e.message == "No Such User") {
-            res.sendStatus(404);
-        } else {
-            res.sendStatus(418);
+        let user = await User.findOne({ _id: id });
+        if (!user) {
+            throw new Error('No Such User');
         }
+
+        user.highScore = Math.max(score, user.highScore);
+        await user.save();
     }
-})
-
-app.listen(port, () => console.log("serving on port" + port));
-
-async function getUser(id: string): Promise<IUser> {
-    await connect('mongodb://localhost:27017/platformer', {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    });
-
-    return await User.findById(id).exec();
-}
-
-// async function newUser(name: string): Promise<string> {
-//     await connect('mongodb://localhost:27017/platformer', {
-//         useNewUrlParser: true,
-//         useUnifiedTopology: true
-//     });
-
-//     const user: IUser = await User.create({
-//         name: name,
-//         highScore: 0,
-//     });
-
-//     return user._id.toString();
-// }
-
-async function newHighScore(score: number, id: string) {
-    await connect('mongodb://localhost:27017/platformer', {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    });
-
-    let user = await User.findOne({ _id: id });
-    if (!user) {
-        throw new Error('No Such User');
-    }
-
-    user.highScore = Math.max(score, user.highScore);
-    await user.save();
-}
