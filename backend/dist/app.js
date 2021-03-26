@@ -43,7 +43,6 @@ passport_1.default.use(new GoogleStrategy({
                 name: profile.displayName,
                 highScore: 0,
             }, (err, user) => {
-                console.log('created user', user);
                 done(err, user);
             });
         }

@@ -63,7 +63,7 @@ const app = express();
 app.use(express.json());
 app.use(cookieSession({
     maxAge: 24 * 60 * 60 * 1000,
-    keys: [cryptoRandomString({ length: 20 })]
+    keys: [cryptoRandomString({ length: 64 })]
 }));
 app.use(passport.initialize())
 app.use(passport.session());
