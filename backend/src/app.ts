@@ -122,6 +122,7 @@ app.get('/api/v1/u/:id', async (req, res) => {
     const userID = req.params.id;
     const currUser: any = req.user;
     if (userID != currUser?._id) {
+        console.log("un authenticated get current user id was", currUser)
         res.sendStatus(404);
         return;
     }
