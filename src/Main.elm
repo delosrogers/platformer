@@ -76,8 +76,7 @@ saveScore model =
         { method = "PUT"
         , headers = []
         , url =
-            Config.apiURL
-                ++ "u/"
+            "/u/"
                 ++ Maybe.withDefault "" model.userID
                 ++ "/highscore"
         , body =
@@ -95,8 +94,7 @@ getScore : Maybe String -> Cmd Msg
 getScore userID =
     Http.get
         { url =
-            Config.apiURL
-                ++ "u/"
+            "u/"
                 ++ Maybe.withDefault "" userID
         , expect = Http.expectJson ApiRespRecieved apiDecoder
         }
