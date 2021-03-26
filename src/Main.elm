@@ -76,7 +76,7 @@ saveScore model =
         { method = "PUT"
         , headers = []
         , url =
-            "/u/"
+            "u/"
                 ++ Maybe.withDefault "" model.userID
                 ++ "/highscore"
         , body =

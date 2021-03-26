@@ -102,6 +102,7 @@ passport.deserializeUser(function (id, done) {
 
 
 app.get('/', (req, res) => {
+    console.log("current user: ", req.user)
     res.render('elm.ejs', { user: req.user });
 });
 
