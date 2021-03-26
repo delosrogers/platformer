@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import mongoose, { connect } from 'mongoose';
 import { model, Schema, Model, Document } from 'mongoose';
-
+import helmet from 'helmet';
 
 interface IUser extends Document {
     name: string,
@@ -30,24 +30,40 @@ app.get('/elm.js', (req, res) => {
 });
 
 app.get('/api/v1/u/:id', async (req, res) => {
-    console.log("got an api get request");
     const userID = req.params.id;
     const user: IUser = await getUser(userID);
-    res.send(user);
+    if (user) {
+        res.send(user);
+    } else {
+        res.sendStatus(404);
+    }
 });
 
 app.post('/api/v1/u', async (req, res) => {
     const userName = req.body.name;
     const id = await newUser(userName);
-    res.send({ _id: id, name: userName, highScore: 0 });
+    if (id) {
+        res.send({ _id: id, name: userName, highScore: 0 });
+    } else {
+        res.sendStatus(418);
+    }
 
 });
 
 app.put('/api/v1/u/:id/highscore', async (req, res) => {
     const id: string = req.params.id;
     const score: number = req.body.score;
-    await newHighScore(score, id);
-    res.sendStatus(200);
+    try {
+        await newHighScore(score, id);
+        res.sendStatus(200);
+    } catch (e) {
+        console.log(e.message);
+        if (e.message == "No Such User") {
+            res.sendStatus(404);
+        } else {
+            res.sendStatus(418);
+        }
+    }
 })
 
 app.listen(port, () => console.log("serving on port" + port));
@@ -80,5 +96,10 @@ async function newHighScore(score: number, id: string) {
         useUnifiedTopology: true
     });
 
-    await User.updateOne({ _id: id }, { highScore: score });
+    let user = await User.findOne({ _id: id });
+    if (!user) {
+        throw new Error('No Such User');
+    }
+    user.highScore = score;
+    await user.save();
 }

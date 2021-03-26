@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "express": "^4.17.1",
+    "helmet": "^4.4.1",
     "mongoose": "^5.12.2"
   }
 }

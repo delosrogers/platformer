@@ -21,26 +21,27 @@ updatePlayer model =
         platforms =
             model.platforms
     in
-    if playerOnPlatforms player platforms then
-        if player.vY > 0 then
+    case playerOnPlatforms player platforms of
+        Just platform ->
+            if player.vY > 0 then
+                { player
+                    | x = player.x + player.vX |> playerWrapAround
+                    , vY = -1 * player.vY
+                    , y = player.y + gravity + 5
+                }
+
+            else
+                { player
+                    | x = player.x + player.vX + platform.vX |> playerWrapAround
+                    , vY = 0
+                }
+
+        Nothing ->
             { player
                 | x = player.x + player.vX |> playerWrapAround
-                , vY = -1 * player.vY
-                , y = player.y + gravity + 5
+                , vY = player.vY - gravity
+                , y = player.y - player.vY
             }
-
-        else
-            { player
-                | x = player.x + player.vX |> playerWrapAround
-                , vY = 0
-            }
-
-    else
-        { player
-            | x = player.x + player.vX |> playerWrapAround
-            , vY = player.vY - gravity
-            , y = player.y - player.vY
-        }
 
 
 playerWrapAround : Float -> Float
@@ -48,10 +49,9 @@ playerWrapAround x =
     x |> round |> modBy (round width) |> abs |> toFloat
 
 
-playerOnPlatforms : Player -> List Platform -> Bool
+playerOnPlatforms : Player -> List Platform -> Maybe Platform
 playerOnPlatforms player platforms =
-    List.map (playerOnPlatform player) platforms
-        |> List.any (\x -> x)
+    List.head (List.filter (playerOnPlatform player) platforms)
 
 
 playerOnPlatform : Player -> Platform -> Bool
@@ -120,11 +120,12 @@ jumpPlayer model =
         player =
             model.player
     in
-    if playerOnPlatforms player model.platforms then
-        { model
-            | player =
-                { player | vY = player.vY + 5, y = player.y - platformHeight - 1 }
-        }
+    case playerOnPlatforms player model.platforms of
+        Just _ ->
+            { model
+                | player =
+                    { player | vY = player.vY + 5, y = player.y - platformHeight - 1 }
+            }
 
-    else
-        model
+        Nothing ->
+            model

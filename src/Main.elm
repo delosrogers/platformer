@@ -8,7 +8,7 @@ import Canvas.Settings
 import Color
 import Config
 import GameLogic exposing (..)
-import Html exposing (button, div, text)
+import Html exposing (button, div, span, text)
 import Html.Attributes
 import Html.Events
 import Http
@@ -20,11 +20,11 @@ import Types exposing (..)
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    initWithBestScore 0
+    initWithBestScoreNameAndId 0 Nothing Nothing
 
 
-initWithBestScore : Int -> ( Model, Cmd Msg )
-initWithBestScore hs =
+initWithBestScoreNameAndId : Int -> Maybe String -> Maybe String -> ( Model, Cmd Msg )
+initWithBestScoreNameAndId hs name id =
     ( { player =
             { x = 150
             , y = 300
@@ -36,9 +36,9 @@ initWithBestScore hs =
             []
       , score = 0
       , highScore = hs
-      , name = Nothing
+      , name = name
       , message = Nothing
-      , userID = Nothing
+      , userID = id
       }
     , Random.generate GenList genXPos
     )
@@ -79,6 +79,7 @@ update msg unshifted_model =
                     ( { model
                         | highScore = max model.highScore playerInfo.highScore
                         , name = Just playerInfo.name
+                        , message = Nothing
                       }
                     , Cmd.none
                     )
@@ -175,7 +176,7 @@ update msg unshifted_model =
                     ( { model | player = stopXMotion model.player }, Cmd.none )
 
         RestartGame ->
-            initWithBestScore model.highScore
+            initWithBestScoreNameAndId model.highScore model.name model.userID
 
         GenList xPositions ->
             ( { model
@@ -279,19 +280,31 @@ view model =
     div [ Html.Attributes.classList [ ( "container", True ) ] ]
         [ button [ Html.Events.onClick RestartGame, Html.Attributes.class "btn-primary" ] [ text "reset" ]
         , div []
-            [ Html.input [ Html.Attributes.placeholder "User ID", Html.Attributes.value (Maybe.withDefault "" model.userID), Html.Events.onInput IdInput ]
+            [ Html.input
+                [ Html.Attributes.placeholder "User ID"
+                , Html.Attributes.value (Maybe.withDefault "" model.userID)
+                , Html.Events.onInput IdInput
+                ]
                 []
             , Html.button [ Html.Events.onClick SaveScore ] [ Html.text "save" ]
             , Html.button [ Html.Events.onClick GetScoreAndName ] [ Html.text "get state" ]
             ]
         , div [ Html.Attributes.class "center-block" ]
             [ text
-                (" your score is "
+                ("Hi "
+                    ++ Maybe.withDefault "" model.name
+                    ++ " your score is "
                     ++ String.fromInt model.score
                     ++ " your high score is "
                     ++ String.fromInt model.highScore
                 )
             ]
+        , case model.message of
+            Just msg ->
+                div [] [ text msg ]
+
+            Nothing ->
+                span [] []
         , if model.alive then
             Canvas.toHtml
                 ( round Config.width - 100, round Config.height )

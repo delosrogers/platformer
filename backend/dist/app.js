@@ -31,21 +31,41 @@ app.get('/elm.js', (req, res) => {
     res.sendFile(path_1.default.join(__dirname + '/static/elm.js'));
 });
 app.get('/api/v1/u/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("got an api get request");
     const userID = req.params.id;
     const user = yield getUser(userID);
-    res.send(user);
+    if (user) {
+        res.send(user);
+    }
+    else {
+        res.sendStatus(404);
+    }
 }));
 app.post('/api/v1/u', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userName = req.body.name;
     const id = yield newUser(userName);
-    res.send({ _id: id, name: userName, highScore: 0 });
+    if (id) {
+        res.send({ _id: id, name: userName, highScore: 0 });
+    }
+    else {
+        res.sendStatus(418);
+    }
 }));
 app.put('/api/v1/u/:id/highscore', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     const score = req.body.score;
-    yield newHighScore(score, id);
-    res.sendStatus(200);
+    try {
+        yield newHighScore(score, id);
+        res.sendStatus(200);
+    }
+    catch (e) {
+        console.log(e.message);
+        if (e.message == "No Such User") {
+            res.sendStatus(404);
+        }
+        else {
+            res.sendStatus(418);
+        }
+    }
 }));
 app.listen(port, () => console.log("serving on port" + port));
 function getUser(id) {
@@ -76,7 +96,12 @@ function newHighScore(score, id) {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
-        yield User.updateOne({ _id: id }, { highScore: score });
+        let user = yield User.findOne({ _id: id });
+        if (!user) {
+            throw new Error('No Such User');
+        }
+        user.highScore = score;
+        yield user.save();
     });
 }
 //# sourceMappingURL=app.js.map
