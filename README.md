@@ -12,6 +12,6 @@ A vertical scroling platformer written in Elm. You can play the game at https://
 
 ### Running the code locally
 
-run `npm run tmp-db` in the backend directory to start a new MongoDB Docker container and start the web app. If you already have Mongo running on `localhost:27017` `build.sh` for a release build or `build-dev.sh` for a debug build. Next, navigate to `http://localhost:3000/elm.html` to play the game.
+run `npm run tmp-db` in the backend directory to start a new MongoDB Docker container and start the web app. If you already have Mongo running on `localhost:27017` run `build.sh` for a release build or `build-dev.sh` for a debug build. Next, navigate to `http://localhost:3000/elm.html` to play the game.
 
 To put a dummy user in the database run `create-dummy-user.sh`.
