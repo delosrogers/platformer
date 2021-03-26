@@ -32,6 +32,7 @@ type alias Platform =
     , y : Float
     , width : Float
     , vX : Float
+    , kind : PlatformType
     }
 
 
@@ -64,3 +65,8 @@ type PlayerAction
     | Left
     | Right
     | Other
+
+
+type PlatformType
+    = Normal
+    | Boosted

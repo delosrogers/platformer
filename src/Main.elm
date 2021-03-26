@@ -207,7 +207,7 @@ update msg unshifted_model =
         GenList xPositions ->
             ( { model
                 | platforms =
-                    { x = 0, y = 300, vX = 0, width = Config.width }
+                    { x = 0, y = 300, vX = 0, width = Config.width, kind = Normal }
                         :: List.indexedMap generatePlatforms xPositions
               }
             , Cmd.none
@@ -228,6 +228,12 @@ generatePlatforms i xPos =
                  else
                     1
                 )
+    , kind =
+        if modBy 5 i == 0 then
+            Boosted
+
+        else
+            Normal
     }
 
 
