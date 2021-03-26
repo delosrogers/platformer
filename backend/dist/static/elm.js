@@ -5471,7 +5471,7 @@ var $elm$random$Random$list = F2(
 var $author$project$Config$width = 500;
 var $author$project$Main$genXPos = A2(
 	$elm$random$Random$list,
-	500,
+	200,
 	A2($elm$random$Random$float, 0, $author$project$Config$width));
 var $elm$random$Random$Generate = $elm$core$Basics$identity;
 var $elm$random$Random$initialSeed = function (x) {
