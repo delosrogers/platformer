@@ -58,6 +58,27 @@ main =
         }
 
 
+saveScore : Model -> Cmd Msg
+saveScore model =
+    Http.request
+        { method = "PUT"
+        , headers = []
+        , url =
+            Config.apiURL
+                ++ "u/"
+                ++ Maybe.withDefault "" model.userID
+                ++ "/highscore"
+        , body =
+            Http.jsonBody
+                (Encode.object
+                    [ ( "score", Encode.int model.highScore ) ]
+                )
+        , expect = Http.expectWhatever SavedHighScore
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+
 apiDecoder : Decode.Decoder ScoreApiRes
 apiDecoder =
     Decode.map3 ScoreApiRes
@@ -97,23 +118,7 @@ update msg unshifted_model =
 
         SaveScore ->
             ( model
-            , Http.request
-                { method = "PUT"
-                , headers = []
-                , url =
-                    Config.apiURL
-                        ++ "u/"
-                        ++ Maybe.withDefault "" model.userID
-                        ++ "/highscore"
-                , body =
-                    Http.jsonBody
-                        (Encode.object
-                            [ ( "score", Encode.int model.highScore ) ]
-                        )
-                , expect = Http.expectWhatever SavedHighScore
-                , timeout = Nothing
-                , tracker = Nothing
-                }
+            , saveScore model
             )
 
         GetScoreAndName ->
@@ -146,7 +151,11 @@ update msg unshifted_model =
                         else
                             True
                   }
-                , Cmd.none
+                , if model.alive && updatedPlayer.y > Config.height then
+                    saveScore model
+
+                  else
+                    Cmd.none
                 )
 
             else

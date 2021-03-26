@@ -2,7 +2,6 @@ import express from 'express';
 import path from 'path';
 import mongoose, { connect } from 'mongoose';
 import { model, Schema, Model, Document } from 'mongoose';
-import helmet from 'helmet';
 
 interface IUser extends Document {
     name: string,
@@ -82,6 +81,7 @@ async function newUser(name: string): Promise<string> {
         useNewUrlParser: true,
         useUnifiedTopology: true
     });
+
     const user: IUser = await User.create({
         name: name,
         highScore: 0,
@@ -100,6 +100,7 @@ async function newHighScore(score: number, id: string) {
     if (!user) {
         throw new Error('No Such User');
     }
-    user.highScore = score;
+
+    user.highScore = Math.max(score, user.highScore);
     await user.save();
 }

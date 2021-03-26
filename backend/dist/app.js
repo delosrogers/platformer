@@ -100,7 +100,7 @@ function newHighScore(score, id) {
         if (!user) {
             throw new Error('No Such User');
         }
-        user.highScore = score;
+        user.highScore = Math.max(score, user.highScore);
         yield user.save();
     });
 }

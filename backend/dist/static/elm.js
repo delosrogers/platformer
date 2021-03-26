@@ -784,11 +784,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region._.J === region.ah.J)
+	if (region._.K === region.ah.K)
 	{
-		return 'on line ' + region._.J;
+		return 'on line ' + region._.K;
 	}
-	return 'on lines ' + region._.J + ' through ' + region.ah.J;
+	return 'on lines ' + region._.K + ' through ' + region.ah.K;
 }
 
 
@@ -5564,10 +5564,10 @@ var $author$project$Main$initWithBestScoreNameAndId = F3(
 	function (hs, name, id) {
 		return _Utils_Tuple2(
 			{
-				P: true,
+				J: true,
 				am: hs,
 				D: $elm$core$Maybe$Nothing,
-				K: name,
+				L: name,
 				R: _List_Nil,
 				E: {u: 0, p: 0, j: 150, f: 300},
 				aH: 0,
@@ -6178,12 +6178,9 @@ var $author$project$Main$subscriptions = function (_v0) {
 var $author$project$Types$ApiRespRecieved = function (a) {
 	return {$: 5, a: a};
 };
-var $author$project$Types$SavedHighScore = function (a) {
-	return {$: 6, a: a};
-};
 var $author$project$Types$ScoreApiRes = F3(
 	function (id, name, highScore) {
-		return {am: highScore, a2: id, K: name};
+		return {am: highScore, a2: id, L: name};
 	});
 var $elm$json$Json$Decode$int = _Json_decodeInt;
 var $elm$json$Json$Decode$map3 = _Json_map3;
@@ -6696,23 +6693,6 @@ var $elm$http$Http$expectJson = F2(
 						A2($elm$json$Json$Decode$decodeString, decoder, string));
 				}));
 	});
-var $elm$http$Http$expectBytesResponse = F2(
-	function (toMsg, toResult) {
-		return A3(
-			_Http_expect,
-			'arraybuffer',
-			_Http_toDataView,
-			A2($elm$core$Basics$composeR, toResult, toMsg));
-	});
-var $elm$http$Http$expectWhatever = function (toMsg) {
-	return A2(
-		$elm$http$Http$expectBytesResponse,
-		toMsg,
-		$elm$http$Http$resolve(
-			function (_v0) {
-				return $elm$core$Result$Ok(0);
-			}));
-};
 var $elm$core$Basics$modBy = _Basics_modBy;
 var $author$project$Main$generatePlatforms = F2(
 	function (i, xPos) {
@@ -6877,13 +6857,6 @@ var $elm$http$Http$get = function (r) {
 		{aR: $elm$http$Http$emptyBody, aj: r.aj, a$: _List_Nil, a9: 'GET', bk: $elm$core$Maybe$Nothing, bm: $elm$core$Maybe$Nothing, aM: r.aM});
 };
 var $author$project$Config$height = 700;
-var $elm$json$Json$Encode$int = _Json_wrap;
-var $elm$http$Http$jsonBody = function (value) {
-	return A2(
-		_Http_pair,
-		'application/json',
-		A2($elm$json$Json$Encode$encode, 0, value));
-};
 var $author$project$Config$platformHeight = 10;
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
@@ -6951,6 +6924,33 @@ var $author$project$GameLogic$movePlatforms = function (platforms) {
 };
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Types$SavedHighScore = function (a) {
+	return {$: 6, a: a};
+};
+var $elm$http$Http$expectBytesResponse = F2(
+	function (toMsg, toResult) {
+		return A3(
+			_Http_expect,
+			'arraybuffer',
+			_Http_toDataView,
+			A2($elm$core$Basics$composeR, toResult, toMsg));
+	});
+var $elm$http$Http$expectWhatever = function (toMsg) {
+	return A2(
+		$elm$http$Http$expectBytesResponse,
+		toMsg,
+		$elm$http$Http$resolve(
+			function (_v0) {
+				return $elm$core$Result$Ok(0);
+			}));
+};
+var $elm$json$Json$Encode$int = _Json_wrap;
+var $elm$http$Http$jsonBody = function (value) {
+	return A2(
+		_Http_pair,
+		'application/json',
+		A2($elm$json$Json$Encode$encode, 0, value));
+};
 var $elm$json$Json$Encode$object = function (pairs) {
 	return _Json_wrap(
 		A3(
@@ -6963,6 +6963,34 @@ var $elm$json$Json$Encode$object = function (pairs) {
 				}),
 			_Json_emptyObject(0),
 			pairs));
+};
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (!maybe.$) {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $author$project$Main$saveScore = function (model) {
+	return $elm$http$Http$request(
+		{
+			aR: $elm$http$Http$jsonBody(
+				$elm$json$Json$Encode$object(
+					_List_fromArray(
+						[
+							_Utils_Tuple2(
+							'score',
+							$elm$json$Json$Encode$int(model.am))
+						]))),
+			aj: $elm$http$Http$expectWhatever($author$project$Types$SavedHighScore),
+			a$: _List_Nil,
+			a9: 'PUT',
+			bk: $elm$core$Maybe$Nothing,
+			bm: $elm$core$Maybe$Nothing,
+			aM: $author$project$Config$apiURL + ('u/' + (A2($elm$core$Maybe$withDefault, '', model.G) + '/highscore'))
+		});
 };
 var $author$project$GameLogic$shiftModel = function (model) {
 	var player = model.E;
@@ -7037,15 +7065,6 @@ var $author$project$GameLogic$updatePlayer = function (model) {
 			});
 	}
 };
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (!maybe.$) {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var $author$project$Main$update = F2(
 	function (msg, unshifted_model) {
 		var model = $author$project$GameLogic$shiftModel(unshifted_model);
@@ -7060,7 +7079,7 @@ var $author$project$Main$update = F2(
 							{
 								am: A2($elm$core$Basics$max, model.am, playerInfo.am),
 								D: $elm$core$Maybe$Nothing,
-								K: $elm$core$Maybe$Just(playerInfo.K)
+								L: $elm$core$Maybe$Just(playerInfo.L)
 							}),
 						$elm$core$Platform$Cmd$none);
 				} else {
@@ -7094,23 +7113,7 @@ var $author$project$Main$update = F2(
 			case 7:
 				return _Utils_Tuple2(
 					model,
-					$elm$http$Http$request(
-						{
-							aR: $elm$http$Http$jsonBody(
-								$elm$json$Json$Encode$object(
-									_List_fromArray(
-										[
-											_Utils_Tuple2(
-											'score',
-											$elm$json$Json$Encode$int(model.am))
-										]))),
-							aj: $elm$http$Http$expectWhatever($author$project$Types$SavedHighScore),
-							a$: _List_Nil,
-							a9: 'PUT',
-							bk: $elm$core$Maybe$Nothing,
-							bm: $elm$core$Maybe$Nothing,
-							aM: $author$project$Config$apiURL + ('u/' + (A2($elm$core$Maybe$withDefault, '', model.G) + '/highscore'))
-						}));
+					$author$project$Main$saveScore(model));
 			case 8:
 				return _Utils_Tuple2(
 					model,
@@ -7129,17 +7132,17 @@ var $author$project$Main$update = F2(
 						}),
 					$elm$core$Platform$Cmd$none);
 			case 0:
-				if (model.P) {
+				if (model.J) {
 					var updatedPlayer = $author$project$GameLogic$updatePlayer(model);
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
 							{
-								P: (_Utils_cmp(updatedPlayer.f, $author$project$Config$height) > 0) ? false : true,
+								J: (_Utils_cmp(updatedPlayer.f, $author$project$Config$height) > 0) ? false : true,
 								R: $author$project$GameLogic$movePlatforms(model.R),
 								E: updatedPlayer
 							}),
-						$elm$core$Platform$Cmd$none);
+						(model.J && (_Utils_cmp(updatedPlayer.f, $author$project$Config$height) > 0)) ? $author$project$Main$saveScore(model) : $elm$core$Platform$Cmd$none);
 				} else {
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				}
@@ -7183,7 +7186,7 @@ var $author$project$Main$update = F2(
 						$elm$core$Platform$Cmd$none);
 				}
 			case 3:
-				return A3($author$project$Main$initWithBestScoreNameAndId, model.am, model.K, model.G);
+				return A3($author$project$Main$initWithBestScoreNameAndId, model.am, model.L, model.G);
 			default:
 				var xPositions = msg.a;
 				return _Utils_Tuple2(
@@ -8262,7 +8265,7 @@ var $author$project$Main$view = function (model) {
 				_List_fromArray(
 					[
 						$elm$html$Html$text(
-						'Hi ' + (A2($elm$core$Maybe$withDefault, '', model.K) + (' your score is ' + ($elm$core$String$fromInt(model.aH) + (' your high score is ' + $elm$core$String$fromInt(model.am))))))
+						'Hi ' + (A2($elm$core$Maybe$withDefault, '', model.L) + (' your score is ' + ($elm$core$String$fromInt(model.aH) + (' your high score is ' + $elm$core$String$fromInt(model.am))))))
 					])),
 				function () {
 				var _v0 = model.D;
@@ -8279,7 +8282,7 @@ var $author$project$Main$view = function (model) {
 					return A2($elm$html$Html$span, _List_Nil, _List_Nil);
 				}
 			}(),
-				model.P ? A3(
+				model.J ? A3(
 				$joakin$elm_canvas$Canvas$toHtml,
 				_Utils_Tuple2(
 					$elm$core$Basics$round($author$project$Config$width) - 100,
