@@ -10,15 +10,22 @@ import cryptoRandomString from 'crypto-random-string'
 import http from 'http';
 import https from 'https';
 import fs from 'fs';
+let hostName: string;
+if (process.env.DEV != "TRUE") {
 
-;
+    hostName = "https://platformer.genedataexplorer.space";
+} else {
+
+    hostName = "http://localhost";
+}
+
 const GoogleStrategy = Google.OAuth2Strategy;
 
 require('dotenv').config();
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:3000/auth/google/callback",
+    callbackURL: hostName + ":3000/auth/google/callback",
 },
     function (accessToken: string, refreshToken: string, profile, done) {
         connect('mongodb://localhost:27017/platformer', {
