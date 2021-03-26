@@ -46,7 +46,7 @@ initWithBestScoreNameAndId hs name id =
 
 genXPos : Random.Generator (List Float)
 genXPos =
-    Random.list 500 (Random.float 0 Config.width)
+    Random.list 200 (Random.float 0 Config.width)
 
 
 main =
