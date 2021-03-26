@@ -1858,8 +1858,8 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 		flagDecoder,
 		args,
 		impl.a4,
-		impl.bn,
-		impl.bj,
+		impl.bo,
+		impl.bk,
 		function() { return function() {} }
 	);
 });
@@ -2704,7 +2704,7 @@ var _VirtualDom_mapEventTuple = F2(function(func, tuple)
 var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
-		D: func(record.D),
+		E: func(record.E),
 		aa: record.aa,
 		X: record.X
 	}
@@ -2974,7 +2974,7 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 		// 3 = Custom
 
 		var value = result.a;
-		var message = !tag ? value : tag < 3 ? value.a : value.D;
+		var message = !tag ? value : tag < 3 ? value.a : value.E;
 		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.aa;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
@@ -3929,10 +3929,10 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 		flagDecoder,
 		args,
 		impl.a4,
-		impl.bn,
-		impl.bj,
+		impl.bo,
+		impl.bk,
 		function(sendToApp, initialModel) {
-			var view = impl.bo;
+			var view = impl.bp;
 			/**/
 			var domNode = args['node'];
 			//*/
@@ -3965,11 +3965,11 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 		flagDecoder,
 		args,
 		impl.a4,
-		impl.bn,
-		impl.bj,
+		impl.bo,
+		impl.bk,
 		function(sendToApp, initialModel) {
 			var divertHrefToApp = impl.Z && impl.Z(sendToApp)
-			var view = impl.bo;
+			var view = impl.bp;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -3982,7 +3982,7 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.bl) && (_VirtualDom_doc.title = title = doc.bl);
+				(title !== doc.bm) && (_VirtualDom_doc.title = title = doc.bm);
 			});
 		}
 	);
@@ -4038,8 +4038,8 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.ba;
-	var onUrlRequest = impl.bb;
+	var onUrlChange = impl.bb;
+	var onUrlRequest = impl.bc;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
@@ -4073,9 +4073,9 @@ function _Browser_application(impl)
 		{
 			return A3(impl.a4, flags, _Browser_getUrl(), key);
 		},
+		bp: impl.bp,
 		bo: impl.bo,
-		bn: impl.bn,
-		bj: impl.bj
+		bk: impl.bk
 	});
 }
 
@@ -4235,8 +4235,8 @@ function _Browser_getViewport()
 		aG: _Browser_getScene(),
 		aN: {
 			j: _Browser_window.pageXOffset,
-			f: _Browser_window.pageYOffset,
-			bp: _Browser_doc.documentElement.clientWidth,
+			e: _Browser_window.pageYOffset,
+			bq: _Browser_doc.documentElement.clientWidth,
 			al: _Browser_doc.documentElement.clientHeight
 		}
 	};
@@ -4247,7 +4247,7 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		bp: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		bq: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
 		al: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
@@ -4272,13 +4272,13 @@ function _Browser_getViewportOf(id)
 	{
 		return {
 			aG: {
-				bp: node.scrollWidth,
+				bq: node.scrollWidth,
 				al: node.scrollHeight
 			},
 			aN: {
 				j: node.scrollLeft,
-				f: node.scrollTop,
-				bp: node.clientWidth,
+				e: node.scrollTop,
+				bq: node.clientWidth,
 				al: node.clientHeight
 			}
 		};
@@ -4312,14 +4312,14 @@ function _Browser_getElement(id)
 			aG: _Browser_getScene(),
 			aN: {
 				j: x,
-				f: y,
-				bp: _Browser_doc.documentElement.clientWidth,
+				e: y,
+				bq: _Browser_doc.documentElement.clientWidth,
 				al: _Browser_doc.documentElement.clientHeight
 			},
 			aX: {
 				j: x + rect.left,
-				f: y + rect.top,
-				bp: rect.width,
+				e: y + rect.top,
+				bq: rect.width,
 				al: rect.height
 			}
 		};
@@ -4455,10 +4455,10 @@ var _Http_toTask = F3(function(router, toTask, request)
 		xhr.addEventListener('error', function() { done($elm$http$Http$NetworkError_); });
 		xhr.addEventListener('timeout', function() { done($elm$http$Http$Timeout_); });
 		xhr.addEventListener('load', function() { done(_Http_toResponse(request.aj.b, xhr)); });
-		$elm$core$Maybe$isJust(request.bm) && _Http_track(router, xhr, request.bm.a);
+		$elm$core$Maybe$isJust(request.bn) && _Http_track(router, xhr, request.bn.a);
 
 		try {
-			xhr.open(request.a9, request.aM, true);
+			xhr.open(request.ba, request.aM, true);
 		} catch (e) {
 			return done($elm$http$Http$BadUrl_(request.aM));
 		}
@@ -4481,7 +4481,7 @@ function _Http_configureRequest(xhr, request)
 	{
 		xhr.setRequestHeader(headers.a.a, headers.a.b);
 	}
-	xhr.timeout = request.bk.a || 0;
+	xhr.timeout = request.bl.a || 0;
 	xhr.responseType = request.aj.d;
 	xhr.withCredentials = request.aP;
 }
@@ -4505,8 +4505,8 @@ function _Http_toMetadata(xhr)
 {
 	return {
 		aM: xhr.responseURL,
-		bh: xhr.status,
-		bi: xhr.statusText,
+		bi: xhr.status,
+		bj: xhr.statusText,
 		a$: _Http_parseHeaders(xhr.getAllResponseHeaders())
 	};
 }
@@ -4602,14 +4602,14 @@ function _Http_track(router, xhr, tracker)
 	xhr.upload.addEventListener('progress', function(event) {
 		if (xhr.c) { return; }
 		_Scheduler_rawSpawn(A2($elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, $elm$http$Http$Sending({
-			bf: event.loaded,
+			bg: event.loaded,
 			aI: event.total
 		}))));
 	});
 	xhr.addEventListener('progress', function(event) {
 		if (xhr.c) { return; }
 		_Scheduler_rawSpawn(A2($elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, $elm$http$Http$Receiving({
-			bd: event.loaded,
+			be: event.loaded,
 			aI: event.lengthComputable ? $elm$core$Maybe$Just(event.total) : $elm$core$Maybe$Nothing
 		}))));
 	});
@@ -6171,7 +6171,7 @@ var $elm$http$Http$resolve = F2(
 			case 3:
 				var metadata = response.a;
 				return $elm$core$Result$Err(
-					$elm$http$Http$BadStatus(metadata.bh));
+					$elm$http$Http$BadStatus(metadata.bi));
 			default:
 				var body = response.b;
 				return A2(
@@ -6243,7 +6243,7 @@ var $elm$http$Http$updateReqs = F3(
 					return A2(
 						$elm$core$Task$andThen,
 						function (pid) {
-							var _v4 = req.bm;
+							var _v4 = req.bn;
 							if (_v4.$ === 1) {
 								return A3($elm$http$Http$updateReqs, router, otherCmds, reqs);
 							} else {
@@ -6334,9 +6334,9 @@ var $elm$http$Http$cmdMap = F2(
 					aR: r.aR,
 					aj: A2(_Http_mapExpect, func, r.aj),
 					a$: r.a$,
-					a9: r.a9,
-					bk: r.bk,
-					bm: r.bm,
+					ba: r.ba,
+					bl: r.bl,
+					bn: r.bn,
 					aM: r.aM
 				});
 		}
@@ -6360,11 +6360,11 @@ var $elm$http$Http$subscription = _Platform_leaf('Http');
 var $elm$http$Http$request = function (r) {
 	return $elm$http$Http$command(
 		$elm$http$Http$Request(
-			{aP: false, aR: r.aR, aj: r.aj, a$: r.a$, a9: r.a9, bk: r.bk, bm: r.bm, aM: r.aM}));
+			{aP: false, aR: r.aR, aj: r.aj, a$: r.a$, ba: r.ba, bl: r.bl, bn: r.bn, aM: r.aM}));
 };
 var $elm$http$Http$get = function (r) {
 	return $elm$http$Http$request(
-		{aR: $elm$http$Http$emptyBody, aj: r.aj, a$: _List_Nil, a9: 'GET', bk: $elm$core$Maybe$Nothing, bm: $elm$core$Maybe$Nothing, aM: r.aM});
+		{aR: $elm$http$Http$emptyBody, aj: r.aj, a$: _List_Nil, ba: 'GET', bl: $elm$core$Maybe$Nothing, bn: $elm$core$Maybe$Nothing, aM: r.aM});
 };
 var $elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
@@ -6388,10 +6388,10 @@ var $author$project$Main$initWithBestScoreNameAndId = F4(
 			{
 				J: true,
 				am: hs,
-				D: $elm$core$Maybe$Nothing,
+				E: $elm$core$Maybe$Nothing,
 				L: name,
 				R: _List_Nil,
-				E: {u: 0, p: 0, j: 150, f: 300},
+				y: {A: 0, l: 0, j: 150, e: 300},
 				aH: 0,
 				G: id
 			},
@@ -6873,14 +6873,17 @@ var $author$project$Main$subscriptions = function (_v0) {
 				$elm$browser$Browser$Events$onKeyUp($author$project$Main$keyUpDecoder)
 			]));
 };
+var $author$project$Types$Normal = 0;
+var $author$project$Types$Boosted = 1;
 var $elm$core$Basics$modBy = _Basics_modBy;
 var $author$project$Main$generatePlatforms = F2(
 	function (i, xPos) {
 		return {
-			u: ((0.05 * i) + 1) * ((!A2($elm$core$Basics$modBy, 2, i)) ? (-1) : 1),
-			bp: 100,
+			a5: (!A2($elm$core$Basics$modBy, 5, i)) ? 1 : 0,
+			A: ((0.05 * i) + 1) * ((!A2($elm$core$Basics$modBy, 2, i)) ? (-1) : 1),
+			bq: 100,
 			j: xPos,
-			f: 300 - (i * 100)
+			e: 300 - (i * 100)
 		};
 	});
 var $author$project$Config$height = 700;
@@ -6907,7 +6910,7 @@ var $elm$core$List$head = function (list) {
 };
 var $author$project$GameLogic$playerOnPlatform = F2(
 	function (player, platform) {
-		return (_Utils_cmp(player.j, platform.j) > 0) && ((_Utils_cmp(player.j, platform.j + platform.bp) < 0) && ((_Utils_cmp(player.f, platform.f) > 0) && (_Utils_cmp(player.f, platform.f + $author$project$Config$platformHeight) < 0)));
+		return (_Utils_cmp(player.j, platform.j) > 0) && ((_Utils_cmp(player.j, platform.j + platform.bq) < 0) && ((_Utils_cmp(player.e, platform.e) > 0) && (_Utils_cmp(player.e, platform.e + $author$project$Config$platformHeight) < 0)));
 	});
 var $author$project$GameLogic$playerOnPlatforms = F2(
 	function (player, platforms) {
@@ -6918,16 +6921,28 @@ var $author$project$GameLogic$playerOnPlatforms = F2(
 				platforms));
 	});
 var $author$project$GameLogic$jumpPlayer = function (model) {
-	var player = model.E;
+	var player = model.y;
 	var _v0 = A2($author$project$GameLogic$playerOnPlatforms, player, model.R);
 	if (!_v0.$) {
-		return _Utils_update(
-			model,
-			{
-				E: _Utils_update(
-					player,
-					{p: player.p + 5, f: (player.f - $author$project$Config$platformHeight) - 1})
-			});
+		var platform = _v0.a;
+		var _v1 = platform.a5;
+		if (!_v1) {
+			return _Utils_update(
+				model,
+				{
+					y: _Utils_update(
+						player,
+						{l: player.l + 5, e: (player.e - $author$project$Config$platformHeight) - 1})
+				});
+		} else {
+			return _Utils_update(
+				model,
+				{
+					y: _Utils_update(
+						player,
+						{l: player.l + 10, e: (player.e - $author$project$Config$platformHeight) - 1})
+				});
+		}
 	} else {
 		return model;
 	}
@@ -6944,7 +6959,7 @@ var $author$project$GameLogic$movePlatforms = function (platforms) {
 						A2(
 							$elm$core$Basics$modBy,
 							$elm$core$Basics$round($author$project$Config$width),
-							$elm$core$Basics$round(platform.j + platform.u)))
+							$elm$core$Basics$round(platform.j + platform.A)))
 				});
 		},
 		platforms);
@@ -7003,16 +7018,16 @@ var $author$project$Main$saveScore = function (model) {
 						]))),
 			aj: $elm$http$Http$expectWhatever($author$project$Types$SavedHighScore),
 			a$: _List_Nil,
-			a9: 'PUT',
-			bk: $elm$core$Maybe$Nothing,
-			bm: $elm$core$Maybe$Nothing,
+			ba: 'PUT',
+			bl: $elm$core$Maybe$Nothing,
+			bn: $elm$core$Maybe$Nothing,
 			aM: $author$project$Config$apiURL + ('u/' + (A2($elm$core$Maybe$withDefault, '', model.G) + '/highscore'))
 		});
 };
 var $author$project$GameLogic$shiftModel = function (model) {
-	var player = model.E;
+	var player = model.y;
 	var newScore = model.aH + 2;
-	return (model.E.f < 300) ? _Utils_update(
+	return (model.y.e < 300) ? _Utils_update(
 		model,
 		{
 			am: A2($elm$core$Basics$max, newScore, model.am),
@@ -7021,30 +7036,30 @@ var $author$project$GameLogic$shiftModel = function (model) {
 				function (platform) {
 					return _Utils_update(
 						platform,
-						{f: platform.f + 2});
+						{e: platform.e + 2});
 				},
 				model.R),
-			E: _Utils_update(
+			y: _Utils_update(
 				player,
-				{f: player.f + 2}),
+				{e: player.e + 2}),
 			aH: newScore
 		}) : model;
 };
 var $author$project$GameLogic$stopXMotion = function (player) {
 	return _Utils_update(
 		player,
-		{u: 0});
+		{A: 0});
 };
 var $author$project$Config$playerSpeed = 5;
 var $author$project$GameLogic$turnLeft = function (player) {
 	return _Utils_update(
 		player,
-		{u: (-1) * $author$project$Config$playerSpeed});
+		{A: (-1) * $author$project$Config$playerSpeed});
 };
 var $author$project$GameLogic$turnRight = function (player) {
 	return _Utils_update(
 		player,
-		{u: $author$project$Config$playerSpeed});
+		{A: $author$project$Config$playerSpeed});
 };
 var $author$project$Config$gravity = 0.1;
 var $author$project$GameLogic$playerWrapAround = function (x) {
@@ -7055,30 +7070,29 @@ var $author$project$GameLogic$playerWrapAround = function (x) {
 			$elm$core$Basics$round(x)));
 };
 var $author$project$GameLogic$updatePlayer = function (model) {
-	var player = model.E;
+	var player = model.y;
 	var platforms = model.R;
 	var _v0 = A2($author$project$GameLogic$playerOnPlatforms, player, platforms);
 	if (!_v0.$) {
-		var platform = _v0.a;
-		return (player.p > 0) ? _Utils_update(
+		return (player.l > 0) ? _Utils_update(
 			player,
 			{
-				p: (-1) * player.p,
-				j: $author$project$GameLogic$playerWrapAround(player.j + player.u),
-				f: (player.f + $author$project$Config$gravity) + 5
+				l: (-1) * player.l,
+				j: $author$project$GameLogic$playerWrapAround(player.j + player.A),
+				e: (player.e + $author$project$Config$gravity) + 5
 			}) : _Utils_update(
 			player,
 			{
-				p: 0,
-				j: $author$project$GameLogic$playerWrapAround((player.j + player.u) + platform.u)
+				l: 0,
+				j: $author$project$GameLogic$playerWrapAround(player.j + player.A)
 			});
 	} else {
 		return _Utils_update(
 			player,
 			{
-				p: player.p - $author$project$Config$gravity,
-				j: $author$project$GameLogic$playerWrapAround(player.j + player.u),
-				f: player.f - player.p
+				l: player.l - $author$project$Config$gravity,
+				j: $author$project$GameLogic$playerWrapAround(player.j + player.A),
+				e: player.e - player.l
 			});
 	}
 };
@@ -7095,7 +7109,7 @@ var $author$project$Main$update = F2(
 							model,
 							{
 								am: A2($elm$core$Basics$max, model.am, playerInfo.am),
-								D: $elm$core$Maybe$Nothing,
+								E: $elm$core$Maybe$Nothing,
 								L: $elm$core$Maybe$Just(playerInfo.L)
 							}),
 						$elm$core$Platform$Cmd$none);
@@ -7104,7 +7118,7 @@ var $author$project$Main$update = F2(
 						_Utils_update(
 							model,
 							{
-								D: $elm$core$Maybe$Just('Something went wrong fetching your score and name')
+								E: $elm$core$Maybe$Just('Something went wrong fetching your score and name')
 							}),
 						$elm$core$Platform$Cmd$none);
 				}
@@ -7115,7 +7129,7 @@ var $author$project$Main$update = F2(
 						_Utils_update(
 							model,
 							{
-								D: $elm$core$Maybe$Just('saved')
+								E: $elm$core$Maybe$Just('saved')
 							}),
 						$elm$core$Platform$Cmd$none);
 				} else {
@@ -7123,7 +7137,7 @@ var $author$project$Main$update = F2(
 						_Utils_update(
 							model,
 							{
-								D: $elm$core$Maybe$Just('Something went wrong saving your score')
+								E: $elm$core$Maybe$Just('Something went wrong saving your score')
 							}),
 						$elm$core$Platform$Cmd$none);
 				}
@@ -7151,11 +7165,11 @@ var $author$project$Main$update = F2(
 						_Utils_update(
 							model,
 							{
-								J: (_Utils_cmp(updatedPlayer.f, $author$project$Config$height) > 0) ? false : true,
+								J: (_Utils_cmp(updatedPlayer.e, $author$project$Config$height) > 0) ? false : true,
 								R: $author$project$GameLogic$movePlatforms(model.R),
-								E: updatedPlayer
+								y: updatedPlayer
 							}),
-						(model.J && (_Utils_cmp(updatedPlayer.f, $author$project$Config$height) > 0)) ? $author$project$Main$saveScore(model) : $elm$core$Platform$Cmd$none);
+						(model.J && (_Utils_cmp(updatedPlayer.e, $author$project$Config$height) > 0)) ? $author$project$Main$saveScore(model) : $elm$core$Platform$Cmd$none);
 				} else {
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				}
@@ -7171,7 +7185,7 @@ var $author$project$Main$update = F2(
 							_Utils_update(
 								model,
 								{
-									E: $author$project$GameLogic$turnLeft(model.E)
+									y: $author$project$GameLogic$turnLeft(model.y)
 								}),
 							$elm$core$Platform$Cmd$none);
 					case 2:
@@ -7179,7 +7193,7 @@ var $author$project$Main$update = F2(
 							_Utils_update(
 								model,
 								{
-									E: $author$project$GameLogic$turnRight(model.E)
+									y: $author$project$GameLogic$turnRight(model.y)
 								}),
 							$elm$core$Platform$Cmd$none);
 					default:
@@ -7194,7 +7208,7 @@ var $author$project$Main$update = F2(
 						_Utils_update(
 							model,
 							{
-								E: $author$project$GameLogic$stopXMotion(model.E)
+								y: $author$project$GameLogic$stopXMotion(model.y)
 							}),
 						$elm$core$Platform$Cmd$none);
 				}
@@ -7208,7 +7222,7 @@ var $author$project$Main$update = F2(
 						{
 							R: A2(
 								$elm$core$List$cons,
-								{u: 0, bp: $author$project$Config$width, j: 0, f: 300},
+								{a5: 0, A: 0, bq: $author$project$Config$width, j: 0, e: 300},
 								A2($elm$core$List$indexedMap, $author$project$Main$generatePlatforms, xPositions))
 						}),
 					$elm$core$Platform$Cmd$none);
@@ -7250,9 +7264,9 @@ var $joakin$elm_canvas$Canvas$Renderable = $elm$core$Basics$identity;
 var $joakin$elm_canvas$Canvas$clear = F3(
 	function (point, w, h) {
 		return {
-			n: _List_Nil,
-			v: $joakin$elm_canvas$Canvas$Internal$Canvas$NotSpecified,
-			w: A3($joakin$elm_canvas$Canvas$Internal$Canvas$DrawableClear, point, w, h)
+			o: _List_Nil,
+			u: $joakin$elm_canvas$Canvas$Internal$Canvas$NotSpecified,
+			v: A3($joakin$elm_canvas$Canvas$Internal$Canvas$DrawableClear, point, w, h)
 		};
 	});
 var $elm$html$Html$div = _VirtualDom_node('div');
@@ -7372,28 +7386,28 @@ var $joakin$elm_canvas$Canvas$addSettingsToRenderable = F2(
 						return _Utils_update(
 							r,
 							{
-								n: A2($elm$core$List$cons, cmd, r.n)
+								o: A2($elm$core$List$cons, cmd, r.o)
 							});
 					case 1:
 						var cmds = setting.a;
 						return _Utils_update(
 							r,
 							{
-								n: A3($elm$core$List$foldl, $elm$core$List$cons, r.n, cmds)
+								o: A3($elm$core$List$foldl, $elm$core$List$cons, r.o, cmds)
 							});
 					case 3:
 						var f = setting.a;
 						return _Utils_update(
 							r,
 							{
-								w: f(r.w)
+								v: f(r.v)
 							});
 					default:
 						var op = setting.a;
 						return _Utils_update(
 							r,
 							{
-								v: A2($joakin$elm_canvas$Canvas$mergeDrawOp, r.v, op)
+								u: A2($joakin$elm_canvas$Canvas$mergeDrawOp, r.u, op)
 							});
 				}
 			});
@@ -7405,9 +7419,9 @@ var $joakin$elm_canvas$Canvas$shapes = F2(
 			$joakin$elm_canvas$Canvas$addSettingsToRenderable,
 			settings,
 			{
-				n: _List_Nil,
-				v: $joakin$elm_canvas$Canvas$Internal$Canvas$NotSpecified,
-				w: $joakin$elm_canvas$Canvas$Internal$Canvas$DrawableShapes(ss)
+				o: _List_Nil,
+				u: $joakin$elm_canvas$Canvas$Internal$Canvas$NotSpecified,
+				v: $joakin$elm_canvas$Canvas$Internal$Canvas$DrawableShapes(ss)
 			});
 	});
 var $author$project$Main$renderPlatforms = function (platforms) {
@@ -7419,8 +7433,8 @@ var $author$project$Main$renderPlatforms = function (platforms) {
 			function (platform) {
 				return A3(
 					$joakin$elm_canvas$Canvas$rect,
-					_Utils_Tuple2(platform.j - 100, platform.f),
-					platform.bp,
+					_Utils_Tuple2(platform.j - 100, platform.e),
+					platform.bq,
 					$author$project$Config$platformHeight);
 			},
 			platforms));
@@ -7456,7 +7470,7 @@ var $author$project$Main$renderPlayer = function (player) {
 			[
 				A2(
 				$joakin$elm_canvas$Canvas$circle,
-				_Utils_Tuple2(player.j - 100, player.f),
+				_Utils_Tuple2(player.j - 100, player.e),
 				15)
 			]));
 };
@@ -8015,11 +8029,11 @@ var $joakin$elm_canvas$Canvas$Internal$Texture$drawTexture = F4(
 			function () {
 				if (!t.$) {
 					var image = t.a;
-					return A9($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$drawImage, 0, 0, image.bp, image.al, x, y, image.bp, image.al, image.Q);
+					return A9($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$drawImage, 0, 0, image.bq, image.al, x, y, image.bq, image.al, image.Q);
 				} else {
 					var sprite = t.a;
 					var image = t.b;
-					return A9($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$drawImage, sprite.j, sprite.f, sprite.bp, sprite.al, x, y, sprite.bp, sprite.al, image.Q);
+					return A9($joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$drawImage, sprite.j, sprite.e, sprite.bq, sprite.al, x, y, sprite.bq, sprite.al, image.Q);
 				}
 			}(),
 			cmds);
@@ -8062,9 +8076,9 @@ var $joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$save = A2($joakin$el
 var $joakin$elm_canvas$Canvas$renderOne = F2(
 	function (_v0, cmds) {
 		var data = _v0;
-		var commands = data.n;
-		var drawable = data.w;
-		var drawOp = data.v;
+		var commands = data.o;
+		var drawable = data.v;
+		var drawOp = data.u;
 		return A2(
 			$elm$core$List$cons,
 			$joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$restore,
@@ -8102,7 +8116,7 @@ var $joakin$elm_canvas$Canvas$Internal$Texture$decodeTextureImage = A2(
 				function (tagName, width, height) {
 					return (tagName === 'IMG') ? $elm$core$Maybe$Just(
 						$joakin$elm_canvas$Canvas$Internal$Texture$TImage(
-							{al: height, Q: image, bp: width})) : $elm$core$Maybe$Nothing;
+							{al: height, Q: image, bq: width})) : $elm$core$Maybe$Nothing;
 				}),
 			A2($elm$json$Json$Decode$field, 'tagName', $elm$json$Json$Decode$string),
 			A2($elm$json$Json$Decode$field, 'width', $elm$json$Json$Decode$float),
@@ -8161,7 +8175,7 @@ var $joakin$elm_canvas$Canvas$toHtmlWith = F3(
 					$elm$html$Html$Attributes$height(options.al),
 					A2(
 						$elm$core$List$cons,
-						$elm$html$Html$Attributes$width(options.bp),
+						$elm$html$Html$Attributes$width(options.bq),
 						attrs))),
 			A2(
 				$elm$core$List$cons,
@@ -8174,7 +8188,7 @@ var $joakin$elm_canvas$Canvas$toHtml = F3(
 		var h = _v0.b;
 		return A3(
 			$joakin$elm_canvas$Canvas$toHtmlWith,
-			{al: h, aL: _List_Nil, bp: w},
+			{al: h, aL: _List_Nil, bq: w},
 			attrs,
 			entities);
 	});
@@ -8247,7 +8261,7 @@ var $author$project$Main$view = function (model) {
 						'Hi ' + (A2($elm$core$Maybe$withDefault, '', model.L) + (' your score is ' + ($elm$core$String$fromInt(model.aH) + (' your high score is ' + $elm$core$String$fromInt(model.am))))))
 					])),
 				function () {
-				var _v1 = model.D;
+				var _v1 = model.E;
 				if (!_v1.$) {
 					var msg = _v1.a;
 					return A2(
@@ -8278,11 +8292,11 @@ var $author$project$Main$view = function (model) {
 						_Utils_Tuple2(0, 0),
 						$author$project$Config$width,
 						$author$project$Config$height),
-						$author$project$Main$renderPlayer(model.E),
+						$author$project$Main$renderPlayer(model.y),
 						$author$project$Main$renderPlatforms(model.R)
 					])) : $elm$html$Html$text(' you died ')
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(
-	{a4: $author$project$Main$init, bj: $author$project$Main$subscriptions, bn: $author$project$Main$update, bo: $author$project$Main$view});
+	{a4: $author$project$Main$init, bk: $author$project$Main$subscriptions, bo: $author$project$Main$update, bp: $author$project$Main$view});
 _Platform_export({'Main':{'init':$author$project$Main$main($elm$json$Json$Decode$string)(0)}});}(this));
