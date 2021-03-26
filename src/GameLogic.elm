@@ -22,7 +22,7 @@ updatePlayer model =
             model.platforms
     in
     case playerOnPlatforms player platforms of
-        Just platform ->
+        Just _ ->
             if player.vY > 0 then
                 { player
                     | x = player.x + player.vX |> playerWrapAround
@@ -32,7 +32,7 @@ updatePlayer model =
 
             else
                 { player
-                    | x = player.x + player.vX + platform.vX |> playerWrapAround
+                    | x = player.x + player.vX |> playerWrapAround
                     , vY = 0
                 }
 
