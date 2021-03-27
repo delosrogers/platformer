@@ -28,7 +28,12 @@ init id =
          else
             Just id
         )
-        True
+        (if id == "a" then
+            False
+
+         else
+            True
+        )
 
 
 initWithBestScoreNameAndId : Int -> Maybe String -> Maybe String -> Bool -> ( Model, Cmd Msg )
