@@ -5578,7 +5578,6 @@ var $author$project$Main$apiDecoder = A4(
 	A2($elm$json$Json$Decode$field, '_id', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'highScore', $elm$json$Json$Decode$int));
-var $author$project$Config$apiURL = 'http://localhost:3000/api/v1/';
 var $elm$json$Json$Decode$decodeString = _Json_runOnString;
 var $elm$http$Http$BadStatus_ = F2(
 	function (a, b) {
@@ -6379,7 +6378,7 @@ var $author$project$Main$getScore = function (userID) {
 	return $elm$http$Http$get(
 		{
 			aj: A2($elm$http$Http$expectJson, $author$project$Types$ApiRespRecieved, $author$project$Main$apiDecoder),
-			aM: $author$project$Config$apiURL + ('u/' + A2($elm$core$Maybe$withDefault, '', userID))
+			aM: 'api/v1/u/' + A2($elm$core$Maybe$withDefault, '', userID)
 		});
 };
 var $author$project$Main$initWithBestScoreNameAndId = F4(
@@ -6391,7 +6390,7 @@ var $author$project$Main$initWithBestScoreNameAndId = F4(
 				D: $elm$core$Maybe$Nothing,
 				L: name,
 				R: _List_Nil,
-				E: {u: 0, p: 0, j: 150, f: 300},
+				E: {z: 0, p: 0, j: 150, f: 300},
 				aH: 0,
 				G: id
 			},
@@ -6408,7 +6407,7 @@ var $author$project$Main$init = function (id) {
 		0,
 		$elm$core$Maybe$Nothing,
 		(id === 'a') ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just(id),
-		true);
+		(id === 'a') ? false : true);
 };
 var $author$project$Types$OnAnimationFrame = function (a) {
 	return {$: 0, a: a};
@@ -6877,7 +6876,7 @@ var $elm$core$Basics$modBy = _Basics_modBy;
 var $author$project$Main$generatePlatforms = F2(
 	function (i, xPos) {
 		return {
-			u: ((0.05 * i) + 1) * ((!A2($elm$core$Basics$modBy, 2, i)) ? (-1) : 1),
+			z: ((0.05 * i) + 1) * ((!A2($elm$core$Basics$modBy, 2, i)) ? (-1) : 1),
 			bp: 100,
 			j: xPos,
 			f: 300 - (i * 100)
@@ -6944,7 +6943,7 @@ var $author$project$GameLogic$movePlatforms = function (platforms) {
 						A2(
 							$elm$core$Basics$modBy,
 							$elm$core$Basics$round($author$project$Config$width),
-							$elm$core$Basics$round(platform.j + platform.u)))
+							$elm$core$Basics$round(platform.j + platform.z)))
 				});
 		},
 		platforms);
@@ -7006,7 +7005,7 @@ var $author$project$Main$saveScore = function (model) {
 			a9: 'PUT',
 			bk: $elm$core$Maybe$Nothing,
 			bm: $elm$core$Maybe$Nothing,
-			aM: $author$project$Config$apiURL + ('u/' + (A2($elm$core$Maybe$withDefault, '', model.G) + '/highscore'))
+			aM: 'api/v1/u/' + (A2($elm$core$Maybe$withDefault, '', model.G) + '/highscore')
 		});
 };
 var $author$project$GameLogic$shiftModel = function (model) {
@@ -7033,18 +7032,18 @@ var $author$project$GameLogic$shiftModel = function (model) {
 var $author$project$GameLogic$stopXMotion = function (player) {
 	return _Utils_update(
 		player,
-		{u: 0});
+		{z: 0});
 };
 var $author$project$Config$playerSpeed = 5;
 var $author$project$GameLogic$turnLeft = function (player) {
 	return _Utils_update(
 		player,
-		{u: (-1) * $author$project$Config$playerSpeed});
+		{z: (-1) * $author$project$Config$playerSpeed});
 };
 var $author$project$GameLogic$turnRight = function (player) {
 	return _Utils_update(
 		player,
-		{u: $author$project$Config$playerSpeed});
+		{z: $author$project$Config$playerSpeed});
 };
 var $author$project$Config$gravity = 0.1;
 var $author$project$GameLogic$playerWrapAround = function (x) {
@@ -7059,25 +7058,24 @@ var $author$project$GameLogic$updatePlayer = function (model) {
 	var platforms = model.R;
 	var _v0 = A2($author$project$GameLogic$playerOnPlatforms, player, platforms);
 	if (!_v0.$) {
-		var platform = _v0.a;
 		return (player.p > 0) ? _Utils_update(
 			player,
 			{
 				p: (-1) * player.p,
-				j: $author$project$GameLogic$playerWrapAround(player.j + player.u),
+				j: $author$project$GameLogic$playerWrapAround(player.j + player.z),
 				f: (player.f + $author$project$Config$gravity) + 5
 			}) : _Utils_update(
 			player,
 			{
 				p: 0,
-				j: $author$project$GameLogic$playerWrapAround((player.j + player.u) + platform.u)
+				j: $author$project$GameLogic$playerWrapAround(player.j + player.z)
 			});
 	} else {
 		return _Utils_update(
 			player,
 			{
 				p: player.p - $author$project$Config$gravity,
-				j: $author$project$GameLogic$playerWrapAround(player.j + player.u),
+				j: $author$project$GameLogic$playerWrapAround(player.j + player.z),
 				f: player.f - player.p
 			});
 	}
@@ -7208,7 +7206,7 @@ var $author$project$Main$update = F2(
 						{
 							R: A2(
 								$elm$core$List$cons,
-								{u: 0, bp: $author$project$Config$width, j: 0, f: 300},
+								{z: 0, bp: $author$project$Config$width, j: 0, f: 300},
 								A2($elm$core$List$indexedMap, $author$project$Main$generatePlatforms, xPositions))
 						}),
 					$elm$core$Platform$Cmd$none);
@@ -7251,8 +7249,8 @@ var $joakin$elm_canvas$Canvas$clear = F3(
 	function (point, w, h) {
 		return {
 			n: _List_Nil,
-			v: $joakin$elm_canvas$Canvas$Internal$Canvas$NotSpecified,
-			w: A3($joakin$elm_canvas$Canvas$Internal$Canvas$DrawableClear, point, w, h)
+			u: $joakin$elm_canvas$Canvas$Internal$Canvas$NotSpecified,
+			v: A3($joakin$elm_canvas$Canvas$Internal$Canvas$DrawableClear, point, w, h)
 		};
 	});
 var $elm$html$Html$div = _VirtualDom_node('div');
@@ -7386,14 +7384,14 @@ var $joakin$elm_canvas$Canvas$addSettingsToRenderable = F2(
 						return _Utils_update(
 							r,
 							{
-								w: f(r.w)
+								v: f(r.v)
 							});
 					default:
 						var op = setting.a;
 						return _Utils_update(
 							r,
 							{
-								v: A2($joakin$elm_canvas$Canvas$mergeDrawOp, r.v, op)
+								u: A2($joakin$elm_canvas$Canvas$mergeDrawOp, r.u, op)
 							});
 				}
 			});
@@ -7406,8 +7404,8 @@ var $joakin$elm_canvas$Canvas$shapes = F2(
 			settings,
 			{
 				n: _List_Nil,
-				v: $joakin$elm_canvas$Canvas$Internal$Canvas$NotSpecified,
-				w: $joakin$elm_canvas$Canvas$Internal$Canvas$DrawableShapes(ss)
+				u: $joakin$elm_canvas$Canvas$Internal$Canvas$NotSpecified,
+				v: $joakin$elm_canvas$Canvas$Internal$Canvas$DrawableShapes(ss)
 			});
 	});
 var $author$project$Main$renderPlatforms = function (platforms) {
@@ -8063,8 +8061,8 @@ var $joakin$elm_canvas$Canvas$renderOne = F2(
 	function (_v0, cmds) {
 		var data = _v0;
 		var commands = data.n;
-		var drawable = data.w;
-		var drawOp = data.v;
+		var drawable = data.v;
+		var drawOp = data.u;
 		return A2(
 			$elm$core$List$cons,
 			$joakin$elm_canvas$Canvas$Internal$CustomElementJsonApi$restore,

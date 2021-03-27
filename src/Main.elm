@@ -28,7 +28,12 @@ init id =
          else
             Just id
         )
-        True
+        (if id == "a" then
+            False
+
+         else
+            True
+        )
 
 
 initWithBestScoreNameAndId : Int -> Maybe String -> Maybe String -> Bool -> ( Model, Cmd Msg )
@@ -76,8 +81,7 @@ saveScore model =
         { method = "PUT"
         , headers = []
         , url =
-            Config.apiURL
-                ++ "u/"
+            "api/v1/u/"
                 ++ Maybe.withDefault "" model.userID
                 ++ "/highscore"
         , body =
@@ -95,8 +99,7 @@ getScore : Maybe String -> Cmd Msg
 getScore userID =
     Http.get
         { url =
-            Config.apiURL
-                ++ "u/"
+            "api/v1/u/"
                 ++ Maybe.withDefault "" userID
         , expect = Http.expectJson ApiRespRecieved apiDecoder
         }

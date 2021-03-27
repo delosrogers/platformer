@@ -21,12 +21,21 @@ const passport_1 = __importDefault(require("passport"));
 const passport_google_oauth_1 = __importDefault(require("passport-google-oauth"));
 const cookie_session_1 = __importDefault(require("cookie-session"));
 const crypto_random_string_1 = __importDefault(require("crypto-random-string"));
+const https_1 = __importDefault(require("https"));
+const fs_1 = __importDefault(require("fs"));
+let hostName;
+if (process.env.DEV != "TRUE") {
+    hostName = "https://platformer.genedataexplorer.space";
+}
+else {
+    hostName = "http://localhost";
+}
 const GoogleStrategy = passport_google_oauth_1.default.OAuth2Strategy;
 require('dotenv').config();
 passport_1.default.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:3000/auth/google/callback",
+    callbackURL: hostName + ":3000/auth/google/callback",
 }, function (accessToken, refreshToken, profile, done) {
     mongoose_1.connect('mongodb://localhost:27017/platformer', {
         useNewUrlParser: true,
@@ -63,6 +72,17 @@ app.use(cookie_session_1.default({
 app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());
 app.set('view engine', 'ejs');
+if (process.env.DEV != "TRUE") {
+    const privateKey = fs_1.default.readFileSync(process.env.PRIVKEYPATH, 'utf8');
+    const certificate = fs_1.default.readFileSync(process.env.CERTPATH, 'utf8');
+    const credentials = { key: privateKey, cert: certificate };
+    const httpsServer = https_1.default.createServer(credentials, app);
+    httpsServer.listen(3000, "platformer.genedataexplorer.space", () => console.log("listening on port 3000"));
+}
+else {
+    const port = 3000;
+    app.listen(port, () => console.log("listening on port ", port));
+}
 passport_1.default.serializeUser(function (user, done) {
     done(null, user._id);
 });
@@ -70,8 +90,8 @@ passport_1.default.deserializeUser(function (id, done) {
     User.findById(id)
         .then((user) => done(null, user));
 });
-const port = 3000;
 app.get('/', (req, res) => {
+    console.log("current user: ", req.user);
     res.render('elm.ejs', { user: req.user });
 });
 app.get('/elm.js', (req, res) => {
@@ -83,6 +103,7 @@ app.get('/api/v1/u/:id', (req, res) => __awaiter(void 0, void 0, void 0, functio
     const userID = req.params.id;
     const currUser = req.user;
     if (userID != (currUser === null || currUser === void 0 ? void 0 : currUser._id)) {
+        console.log("un authenticated get current user id was", currUser);
         res.sendStatus(404);
         return;
     }
@@ -91,6 +112,7 @@ app.get('/api/v1/u/:id', (req, res) => __awaiter(void 0, void 0, void 0, functio
         res.send(user);
     }
     else {
+        console.log("couldn't find user");
         res.sendStatus(404);
     }
 }));
@@ -126,7 +148,6 @@ app.put('/api/v1/u/:id/highscore', (req, res) => __awaiter(void 0, void 0, void 
         }
     }
 }));
-app.listen(port, () => console.log("serving on port" + port));
 function getUser(id) {
     return __awaiter(this, void 0, void 0, function* () {
         yield mongoose_1.connect('mongodb://localhost:27017/platformer', {
@@ -155,6 +176,7 @@ function newHighScore(score, id) {
         });
         let user = yield User.findOne({ _id: id });
         if (!user) {
+            console.log("couldn't find user");
             throw new Error('No Such User');
         }
         user.highScore = Math.max(score, user.highScore);
