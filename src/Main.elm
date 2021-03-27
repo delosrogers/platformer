@@ -18,17 +18,18 @@ import Random
 import Types exposing (..)
 
 
-init : String -> ( Model, Cmd Msg )
-init id =
-    initWithBestScoreNameAndId 0
+init : Flags -> ( Model, Cmd Msg )
+init flags =
+    initWithBestScoreNameXsrfAndId 0
         Nothing
-        (if id == "a" then
+        (if flags.id == "a" then
             Nothing
 
          else
-            Just id
+            Just flags.id
         )
-        (if id == "a" then
+        flags.xsrf
+        (if flags.id == "a" then
             False
 
          else
@@ -36,8 +37,8 @@ init id =
         )
 
 
-initWithBestScoreNameAndId : Int -> Maybe String -> Maybe String -> Bool -> ( Model, Cmd Msg )
-initWithBestScoreNameAndId hs name id fetchState =
+initWithBestScoreNameXsrfAndId : Int -> Maybe String -> Maybe String -> String -> Bool -> ( Model, Cmd Msg )
+initWithBestScoreNameXsrfAndId hs name id xsrf fetchState =
     ( { player =
             { x = 150
             , y = 300
@@ -52,9 +53,10 @@ initWithBestScoreNameAndId hs name id fetchState =
       , name = name
       , message = Nothing
       , userID = id
+      , xsrf = xsrf
       }
     , if fetchState then
-        Cmd.batch [ Random.generate GenList genXPos, getScore id ]
+        Cmd.batch [ Random.generate GenList genXPos, getScore id xsrf ]
 
       else
         Random.generate GenList genXPos
@@ -79,7 +81,7 @@ saveScore : Model -> Cmd Msg
 saveScore model =
     Http.request
         { method = "PUT"
-        , headers = []
+        , headers = [ Http.header "CSRF-Token" model.xsrf ]
         , url =
             "api/v1/u/"
                 ++ Maybe.withDefault "" model.userID
@@ -95,12 +97,17 @@ saveScore model =
         }
 
 
-getScore : Maybe String -> Cmd Msg
-getScore userID =
-    Http.get
-        { url =
+getScore : Maybe String -> String -> Cmd Msg
+getScore userID xsrf =
+    Http.request
+        { method = "GET"
+        , headers = [ Http.header "CSRF-Token" xsrf ]
+        , url =
             "api/v1/u/"
                 ++ Maybe.withDefault "" userID
+        , body = Http.emptyBody
+        , timeout = Nothing
+        , tracker = Nothing
         , expect = Http.expectJson ApiRespRecieved apiDecoder
         }
 
@@ -149,7 +156,7 @@ update msg unshifted_model =
 
         GetScoreAndName ->
             ( model
-            , getScore model.userID
+            , getScore model.userID model.xsrf
             )
 
         IdInput newId ->
@@ -205,7 +212,7 @@ update msg unshifted_model =
                     ( { model | player = stopXMotion model.player }, Cmd.none )
 
         RestartGame ->
-            initWithBestScoreNameAndId model.highScore model.name model.userID False
+            initWithBestScoreNameXsrfAndId model.highScore model.name model.userID model.xsrf False
 
         GenList xPositions ->
             ( { model

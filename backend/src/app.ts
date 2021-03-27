@@ -7,9 +7,11 @@ import passport from 'passport';
 import Google from 'passport-google-oauth';
 import cookieSession from 'cookie-session'
 import cryptoRandomString from 'crypto-random-string'
-import http from 'http';
 import https from 'https';
 import fs from 'fs';
+import csurf from 'csurf';
+
+
 let hostName: string;
 if (process.env.DEV != "TRUE") {
 
@@ -67,10 +69,12 @@ const UserSchema: Schema = new Schema({
 
 const User: Model<IUser> = model('User', UserSchema);
 
+const csrfProtection = csurf();
 
 const app = express();
 app.use(express.json());
 app.use(cookieSession({
+    name: 'session',
     maxAge: 24 * 60 * 60 * 1000,
     keys: [cryptoRandomString({ length: 64 })]
 }));
@@ -101,9 +105,9 @@ passport.deserializeUser(function (id, done) {
 });
 
 
-app.get('/', (req, res) => {
+app.get('/', csrfProtection, (req, res) => {
     console.log("current user: ", req.user)
-    res.render('elm.ejs', { user: req.user });
+    res.render('elm.ejs', { user: req.user, csrfToken: req.csrfToken() });
 });
 
 app.get('/elm.js', (req, res) => {
@@ -147,7 +151,8 @@ app.post('/api/v1/u', async (req, res) => {
 
 });
 
-app.put('/api/v1/u/:id/highscore', async (req, res) => {
+app.put('/api/v1/u/:id/highscore', csrfProtection, async (req, res) => {
+    console.log(req.session);
     const id: string = req.params.id;
     const currUser: any = req.user;
     if (id != currUser?._id) {

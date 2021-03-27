@@ -12,6 +12,7 @@ type alias Model =
     , name : Maybe String
     , message : Maybe String
     , userID : Maybe String
+    , xsrf : String
     }
 
 
@@ -53,6 +54,12 @@ type Msg
     | SaveScore
     | GetScoreAndName
     | IdInput String
+
+
+type alias Flags =
+    { id : String
+    , xsrf : String
+    }
 
 
 type alias ListOfFloat =

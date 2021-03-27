@@ -23,6 +23,7 @@ const cookie_session_1 = __importDefault(require("cookie-session"));
 const crypto_random_string_1 = __importDefault(require("crypto-random-string"));
 const https_1 = __importDefault(require("https"));
 const fs_1 = __importDefault(require("fs"));
+const csurf_1 = __importDefault(require("csurf"));
 let hostName;
 if (process.env.DEV != "TRUE") {
     hostName = "https://platformer.genedataexplorer.space";
@@ -63,9 +64,11 @@ const UserSchema = new mongoose_2.Schema({
     googleId: { type: String, required: true },
 });
 const User = mongoose_2.model('User', UserSchema);
+const csrfProtection = csurf_1.default();
 const app = express_1.default();
 app.use(express_1.default.json());
 app.use(cookie_session_1.default({
+    name: 'session',
     maxAge: 24 * 60 * 60 * 1000,
     keys: [crypto_random_string_1.default({ length: 64 })]
 }));
@@ -90,9 +93,9 @@ passport_1.default.deserializeUser(function (id, done) {
     User.findById(id)
         .then((user) => done(null, user));
 });
-app.get('/', (req, res) => {
+app.get('/', csrfProtection, (req, res) => {
     console.log("current user: ", req.user);
-    res.render('elm.ejs', { user: req.user });
+    res.render('elm.ejs', { user: req.user, csrfToken: req.csrfToken() });
 });
 app.get('/elm.js', (req, res) => {
     res.sendFile(path_1.default.join(__dirname + '/static/elm.js'));
@@ -126,7 +129,8 @@ app.post('/api/v1/u', (req, res) => __awaiter(void 0, void 0, void 0, function* 
     //     res.sendStatus(418);
     // }
 }));
-app.put('/api/v1/u/:id/highscore', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.put('/api/v1/u/:id/highscore', csrfProtection, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.session);
     const id = req.params.id;
     const currUser = req.user;
     if (id != (currUser === null || currUser === void 0 ? void 0 : currUser._id)) {
