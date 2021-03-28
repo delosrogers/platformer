@@ -15,7 +15,7 @@ app.listen(3002, () => console.log("listening on 3002"))
 
 app.post('/deploy', (_, res) => {
     console.log("started exec")
-    exec("cat ci-cd/redeploy.sh | bash", (error, stdout, stderr) => {
+    exec("cd ~/code/platformer && cat ci-cd/redeploy.sh | bash", (error, stdout, stderr) => {
         if (error) {
             console.log(`error: ${error.message}`);
             return;
