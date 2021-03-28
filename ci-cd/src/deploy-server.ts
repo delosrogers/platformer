@@ -5,8 +5,8 @@ import https from 'https';
 
 const app = express();
 
-const privateKey = fs.readFileSync(process.env.PRIVKEYPATH, 'utf8');
-const certificate = fs.readFileSync(process.env.CERTPATH, 'utf8');
+const privateKey = fs.readFileSync(process.env.PRIVKEYPATHNODOCKER, 'utf8');
+const certificate = fs.readFileSync(process.env.CERTPATHNODOCKER, 'utf8');
 const credentials = { key: privateKey, cert: certificate };
 const httpsServer = https.createServer(credentials, app);
 httpsServer.listen(3001, "0.0.0.0", () => console.log("listening on port 3001"));
