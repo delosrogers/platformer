@@ -7,7 +7,7 @@
     "start": "tsc && node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "pretmp-db": "docker run -d --rm --name platformer-test-mongo -p 27017:27017 mongo",
-    "tmp-db": "tsc && node dist/app.js",
+    "tmp-db": "tsc && cd .. && node ci-cd/dist/app.js",
     "posttmp-db": "docker stop platformer-test-mongo"
   },
   "repository": {

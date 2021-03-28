@@ -86,7 +86,7 @@ if (process.env.DEV != "TRUE") {
     const certificate = fs.readFileSync(process.env.CERTPATH, 'utf8');
     const credentials = { key: privateKey, cert: certificate };
     const httpsServer = https.createServer(credentials, app);
-    httpsServer.listen(3000, "platformer.genedataexplorer.space", () => console.log("listening on port 3000"));
+    httpsServer.listen(3000, "0.0.0.0", () => console.log("listening on port 3000"));
 } else {
     const port = 3000;
     app.listen(port, () => console.log("listening on port ", port))
