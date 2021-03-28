@@ -162,7 +162,7 @@ app.put('/api/v1/u/:id/highscore', csrfProtection, async (req, res) => {
     const score: number = req.body.score;
     try {
         await newHighScore(score, id);
-        res.send("success you saved your score yayayayaya super yay super yay");
+        res.sendStatus(200);
     } catch (e) {
         console.log(e.message);
         if (e.message == "No Such User") {
