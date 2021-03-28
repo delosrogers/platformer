@@ -3,4 +3,4 @@
 git pull
 docker compose build
 docker compose down
-docker commpose up -d
+docker commpose up -f docker-complse.yml -f docker-compose.prod.yml -d
