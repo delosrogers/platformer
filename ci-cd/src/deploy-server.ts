@@ -10,6 +10,7 @@ const certificate = fs.readFileSync(process.env.CERTPATHNODOCKER, 'utf8');
 const credentials = { key: privateKey, cert: certificate };
 const httpsServer = https.createServer(credentials, app);
 httpsServer.listen(3001, "platformer.genedataexplorer.space", () => console.log("listening on port 3001"));
+app.listen(3002, () => console.log("listening on 3002"))
 
 
 app.post('/deploy', (_, res) => {
