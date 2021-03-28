@@ -13,6 +13,17 @@ httpsServer.listen(3001, "0.0.0.0", () => console.log("listening on port 3001"))
 
 
 app.post('/deploy', (_, res) => {
-    exec("cat ci-cd/redeploy.sh | bash");
+
+    exec("cat ci-cd/redeploy.sh | bash", (error, stdout, stderr) => {
+        if (error) {
+            console.log(`error: ${error.message}`);
+            return;
+        }
+        if (stderr) {
+            console.log(`stderr: ${stderr}`);
+            return;
+        }
+        console.log(`stdout: ${stdout}`);
+    })
     res.sendStatus(200);
 });
