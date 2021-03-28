@@ -30,7 +30,7 @@ passport.use(new GoogleStrategy({
     callbackURL: hostName + ":3000/auth/google/callback",
 },
     function (accessToken: string, refreshToken: string, profile, done) {
-        connect('mongodb://localhost:27017/platformer', {
+        connect('mongodb://platformer-mongodb:27017/platformer', {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
@@ -175,7 +175,7 @@ app.put('/api/v1/u/:id/highscore', csrfProtection, async (req, res) => {
 
 
 async function getUser(id: string): Promise<IUser> {
-    await connect('mongodb://localhost:27017/platformer', {
+    await connect('mongodb://platformer-mongodb:27017/platformer', {
         useNewUrlParser: true,
         useUnifiedTopology: true
     });
@@ -198,7 +198,7 @@ async function getUser(id: string): Promise<IUser> {
 // }
 
 async function newHighScore(score: number, id: string) {
-    await connect('mongodb://localhost:27017/platformer', {
+    await connect('mongodb://platformer-mongodb:27017/platformer', {
         useNewUrlParser: true,
         useUnifiedTopology: true
     });
