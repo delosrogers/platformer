@@ -15,4 +15,4 @@ httpsServer.listen(3001, "platformer.genedataexplorer.space", () => console.log(
 app.post('/deploy', (_, res) => {
     exec("ci-cd/redeploy.sh");
     res.sendStatus(200);
-})
+});

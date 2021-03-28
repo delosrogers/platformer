@@ -21,7 +21,9 @@ services:
     environment: 
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - DEV=TRUE
+      - PRIVKEYPATH=$;{PRIVKEYPATH}
+      - CERTPATH=${CERTPATH}
+      - DEV=${DEV}
 
 networks: 
   platformer-mongodb-net:
