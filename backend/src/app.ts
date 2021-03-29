@@ -71,6 +71,7 @@ const User: Model<IUser> = model('User', UserSchema);
 
 const csrfProtection = csurf();
 
+
 const app = express();
 app.use(express.json());
 app.use(cookieSession({
@@ -172,6 +173,34 @@ app.put('/api/v1/u/:id/highscore', csrfProtection, async (req, res) => {
         }
     }
 })
+
+app.get('/api/v1/leaderboard', async (_, res) => {
+    let users: IUser[];
+    try {
+        users = await getAllUsers();
+    } catch {
+        res.sendStatus(500);
+        return;
+    }
+    console.log("leaderboard:", users);
+    res.send(users);
+})
+
+async function getAllUsers(): Promise<IUser[]> {
+    await connect('mongodb://platformer-mongodb:27017/platformer', {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    });
+    let users: IUser[];
+    try {
+        users = await User.find().sort({ date: 'desc' }).exec();
+    } catch {
+        throw Error("error getting all users");
+    }
+
+
+    return users;
+}
 
 
 async function getUser(id: string): Promise<IUser> {
