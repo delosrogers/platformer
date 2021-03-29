@@ -184,7 +184,7 @@ app.get('/api/v1/leaderboard', async (_, res) => {
     }
     const leaderboard = users.map((user) => {
         return { name: user.name, highScore: user.highScore }
-    });
+    }).sort((first, second) => first.highScore - second.highScore);
     console.log("leaderboard:", users);
     res.send(leaderboard);
 })
@@ -196,7 +196,7 @@ async function getAllUsers(): Promise<IUser[]> {
     });
     let users: IUser[];
     try {
-        users = await User.find().sort({ date: 'desc' }).exec();
+        users = await User.find().exec();
     } catch {
         throw Error("error getting all users");
     }
