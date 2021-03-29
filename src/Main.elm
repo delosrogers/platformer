@@ -41,7 +41,7 @@ initWithBestScoreNameXsrfAndId : Int -> Maybe String -> Maybe String -> String -
 initWithBestScoreNameXsrfAndId hs name id xsrf fetchState =
     ( { player =
             { x = 150
-            , y = 300
+            , y = 290
             , vX = 0
             , vY = 0
             }
@@ -362,7 +362,7 @@ view model =
 
 renderPlayer : Player -> Canvas.Renderable
 renderPlayer player =
-    Canvas.shapes [ Canvas.Settings.fill Color.blue ] [ Canvas.circle ( player.x - 100, player.y ) 15 ]
+    Canvas.shapes [ Canvas.Settings.fill Color.blue ] [ Canvas.circle ( player.x - 100, player.y - 15 ) 15 ]
 
 
 renderPlatforms : Platforms -> List Canvas.Renderable
