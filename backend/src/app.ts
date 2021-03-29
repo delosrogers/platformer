@@ -174,7 +174,11 @@ app.put('/api/v1/u/:id/highscore', csrfProtection, async (req, res) => {
     }
 })
 
-app.get('/api/v1/leaderboard', async (_, res) => {
+app.get('/api/v1/leaderboard', async (req, res) => {
+    if (!req.user) {
+        res.sendStatus(418);
+        return;
+    }
     let users: IUser[];
     try {
         users = await getAllUsers();
