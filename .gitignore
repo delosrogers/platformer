@@ -1,5 +1,6 @@
 node_modules/
 elm-stuff
+elm.js
 .env
 mongo-data/
 moving-to-compose-mongo-backup.archive

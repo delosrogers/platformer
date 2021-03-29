@@ -217,7 +217,7 @@ update msg unshifted_model =
         GenList xPositions ->
             ( { model
                 | platforms =
-                    { x = 0, y = 300, vX = 0, width = Config.width }
+                    { x = 0, y = 300, vX = 0, width = Config.width, kind = Normal }
                         :: List.indexedMap generatePlatforms xPositions
               }
             , Cmd.none
@@ -238,6 +238,12 @@ generatePlatforms i xPos =
                  else
                     1
                 )
+    , kind =
+        if modBy 5 i == 0 then
+            Boosted
+
+        else
+            Normal
     }
 
 
@@ -344,10 +350,10 @@ view model =
             Canvas.toHtml
                 ( round Config.width - 100, round Config.height )
                 [ Html.Attributes.style "display" "block", Html.Attributes.class "center-block" ]
-                [ Canvas.clear ( 0, 0 ) Config.width Config.height
-                , renderPlayer model.player
-                , renderPlatforms model.platforms
-                ]
+                (Canvas.clear ( 0, 0 ) Config.width Config.height
+                    :: renderPlayer model.player
+                    :: renderPlatforms model.platforms
+                )
 
           else
             text " you died "
@@ -359,14 +365,23 @@ renderPlayer player =
     Canvas.shapes [ Canvas.Settings.fill Color.blue ] [ Canvas.circle ( player.x - 100, player.y ) 15 ]
 
 
-renderPlatforms : Platforms -> Canvas.Renderable
+renderPlatforms : Platforms -> List Canvas.Renderable
 renderPlatforms platforms =
-    Canvas.shapes []
-        (List.map
-            (\platform ->
-                Canvas.rect ( platform.x - 100, platform.y )
-                    platform.width
-                    Config.platformHeight
-            )
-            platforms
+    List.map
+        (\platform ->
+            case platform.kind of
+                Boosted ->
+                    Canvas.shapes [ Canvas.Settings.fill Color.red ]
+                        [ Canvas.rect ( platform.x - 100, platform.y )
+                            platform.width
+                            Config.platformHeight
+                        ]
+
+                Normal ->
+                    Canvas.shapes []
+                        [ Canvas.rect ( platform.x - 100, platform.y )
+                            platform.width
+                            Config.platformHeight
+                        ]
         )
+        platforms
