@@ -227,7 +227,7 @@ update msg unshifted_model =
 generatePlatforms : Int -> Float -> Platform
 generatePlatforms i xPos =
     { x = xPos
-    , y = 300 - toFloat (i * 100)
+    , y = 200 - toFloat (i * 100)
     , width = toFloat 100
     , vX =
         ((0.05 * toFloat i) + 1)
