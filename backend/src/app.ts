@@ -196,7 +196,7 @@ async function getAllUsers(): Promise<IUser[]> {
     });
     let users: IUser[];
     try {
-        users = await User.find().; exec();
+        users = await User.find().exec();
     } catch {
         throw Error("error getting all users");
     }
