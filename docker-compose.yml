@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  db:
+    image: mongo
+    networks: 
+      - platformer-mongodb-net
+    container_name: platformer-mongodb
+    volumes:
+      - ~/platformer/mongo-data:/data/db
+    
+  app:
+    build: .
+    depends_on: 
+      - db
+    ports:
+      - 3000:3000
+    networks: 
+      - platformer-mongodb-net
+    environment: 
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - PRIVKEYPATH=${PRIVKEYPATH}
+      - CERTPATH=${CERTPATH}
+      - DEV=${DEV}
+
+networks: 
+  platformer-mongodb-net:
+    name: platformer-mongodb-net
+
