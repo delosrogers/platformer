@@ -120,20 +120,24 @@ jumpPlayer model =
         player =
             model.player
     in
-    case playerOnPlatforms player model.platforms of
-        Just platform ->
-            case platform.kind of
-                Normal ->
-                    { model
-                        | player =
-                            { player | vY = player.vY + 5, y = player.y - platformHeight - 1 }
-                    }
+    if player.vY == 0 then
+        case playerOnPlatforms player model.platforms of
+            Just platform ->
+                case platform.kind of
+                    Normal ->
+                        { model
+                            | player =
+                                { player | vY = player.vY + 5, y = player.y - platformHeight - 1 }
+                        }
 
-                Boosted ->
-                    { model
-                        | player =
-                            { player | vY = player.vY + 7, y = player.y - platformHeight - 1 }
-                    }
+                    Boosted ->
+                        { model
+                            | player =
+                                { player | vY = player.vY + 7, y = player.y - platformHeight - 1 }
+                        }
 
-        Nothing ->
-            model
+            Nothing ->
+                model
+
+    else
+        model
