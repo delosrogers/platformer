@@ -14,9 +14,9 @@ httpsServer.listen(3001, "platformer.genedataexplorer.space", () => console.log(
 app.listen(3002, () => console.log("listening on 3002"))
 
 
-app.post('/deploy', (req, res) => {
-    if (req.body.secret != process.env.DEPLOY_SECRET) {
-        res.send(404);
+app.post('/deploy/:secret', (req, res) => {
+    if (req.params.secret != process.env.DEPLOY_SECRET) {
+        res.sendStatus(404);
         return
     }
     console.log("started exec")
