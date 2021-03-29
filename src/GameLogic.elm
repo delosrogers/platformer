@@ -27,7 +27,7 @@ updatePlayer model =
                 { player
                     | x = player.x + player.vX |> playerWrapAround
                     , vY = -1 * player.vY
-                    , y = player.y + gravity + 5
+                    , y = player.y + gravity + 10
                 }
 
             else
