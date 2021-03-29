@@ -25,4 +25,4 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
-        run: 'curl --request POST --data {"secret": "${{ secrets.DEPLOY_SECRET }}"} https://platformer.genedataexplorer.space:3001/deploy'
+        run: 'curl --request POST --data "{secret: ${{ secrets.DEPLOY_SECRET }}}" https://platformer.genedataexplorer.space:3001/deploy'
