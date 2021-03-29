@@ -6,8 +6,7 @@ services:
     networks: 
       - platformer-mongodb-net
     container_name: platformer-mongodb
-    volumes:
-      - ~/platformer/mongo-data:/data/db
+    
     
   app:
     build: .
