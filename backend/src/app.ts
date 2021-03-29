@@ -182,8 +182,11 @@ app.get('/api/v1/leaderboard', async (_, res) => {
         res.sendStatus(500);
         return;
     }
+    const leaderboard = users.map((user) => {
+        return { name: user.name, highScore: user.highScore }
+    });
     console.log("leaderboard:", users);
-    res.send(users);
+    res.send(leaderboard);
 })
 
 async function getAllUsers(): Promise<IUser[]> {
