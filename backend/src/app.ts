@@ -184,7 +184,7 @@ app.get('/api/v1/leaderboard', async (_, res) => {
     }
     const leaderboard = users.map((user) => {
         return { name: user.name, highScore: user.highScore }
-    }).sort((first, second) => first.highScore - second.highScore);
+    }).sort((first, second) => second.highScore - first.highScore);
     console.log("leaderboard:", users);
     res.send(leaderboard);
 })
