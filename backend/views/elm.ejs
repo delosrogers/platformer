@@ -6,8 +6,8 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://unpkg.com/elm-canvas@2.2.4/elm-canvas.js"></script>
-    <script src="elm.js"></script>
-
+    <script src="https://hl-platformer.netlify.app/elm.js"></script>
+    <meta name="csrf-token" content="<%= csrfToken %>">
 </head>
 
 <body>
@@ -19,17 +19,18 @@
     </div>
     <script>
         const userId = document.getElementById('id').innerHTML.replace(/(^\s+|\s+$)/g, '');
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         if (userId) {
             var app = Elm.Main.init({
                 node: document.getElementById('myapp'),
-                flags: userId
+                flags: { id: userId, xsrf: token }
 
             });
         } else {
 
             var app = Elm.Main.init({
                 node: document.getElementById('myapp'),
-                flags: 'a'
+                flags: { id: 'a', xsrf: token }
             });
         }
     </script>
