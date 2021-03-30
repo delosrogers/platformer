@@ -354,48 +354,50 @@ keyUpDecoder =
 
 view : Model -> Html.Html Msg
 view model =
-    div [ Html.Attributes.classList [ ( "container", True ), ( "row", True ) ] ]
-        [ div [ Html.Attributes.class "col" ]
-            [ button [ Html.Events.onClick RestartGame, Html.Attributes.class "btn-primary" ] [ text "reset" ]
-            , div []
-                [ Html.button [ Html.Events.onClick SaveScore ] [ Html.text "save" ]
-                , case model.userID of
-                    Just _ ->
-                        text " signed in "
+    div [ Html.Attributes.class "container" ]
+        [ div [ Html.Attributes.classList [ ( "justify-content-center", True ), ( "row", True ) ] ]
+            [ div [ Html.Attributes.class "col" ]
+                [ button [ Html.Events.onClick RestartGame, Html.Attributes.class "btn-primary" ] [ text "reset" ]
+                , div []
+                    [ Html.button [ Html.Events.onClick SaveScore ] [ Html.text "save" ]
+                    , case model.userID of
+                        Just _ ->
+                            text " signed in "
+
+                        Nothing ->
+                            Html.a [ Html.Attributes.href "/auth/google" ] [ text "sign in with google (this will cause you to lose your highscore)" ]
+                    ]
+                , div [ Html.Attributes.class "center-block" ]
+                    [ text
+                        ("Hi "
+                            ++ Maybe.withDefault "" model.name
+                            ++ " your score is "
+                            ++ String.fromInt model.score
+                            ++ " your high score is "
+                            ++ String.fromInt model.highScore
+                        )
+                    ]
+                , case model.message of
+                    Just msg ->
+                        div [] [ text msg ]
 
                     Nothing ->
-                        Html.a [ Html.Attributes.href "/auth/google" ] [ text "sign in with google (this will cause you to lose your highscore)" ]
-                ]
-            , div [ Html.Attributes.class "center-block" ]
-                [ text
-                    ("Hi "
-                        ++ Maybe.withDefault "" model.name
-                        ++ " your score is "
-                        ++ String.fromInt model.score
-                        ++ " your high score is "
-                        ++ String.fromInt model.highScore
-                    )
-                ]
-            , case model.message of
-                Just msg ->
-                    div [] [ text msg ]
+                        span [] []
+                , if model.alive then
+                    Canvas.toHtml
+                        ( round Config.width - 100, round Config.height )
+                        [ Html.Attributes.style "display" "block" ]
+                        (Canvas.clear ( 0, 0 ) Config.width Config.height
+                            :: renderPlayer model.player
+                            :: renderPlatforms model.platforms
+                        )
 
-                Nothing ->
-                    span [] []
-            , if model.alive then
-                Canvas.toHtml
-                    ( round Config.width - 100, round Config.height )
-                    [ Html.Attributes.style "display" "block" ]
-                    (Canvas.clear ( 0, 0 ) Config.width Config.height
-                        :: renderPlayer model.player
-                        :: renderPlatforms model.platforms
-                    )
-
-              else
-                text " you died "
+                  else
+                    text " you died "
+                ]
+            , div [ Html.Attributes.class "col" ]
+                [ Html.h2 [] [ text "Leaderboard:" ], renderLeaderboard model.leaderboard ]
             ]
-        , div [ Html.Attributes.class "col" ]
-            [ Html.h2 [] [ text "Leaderboard:" ], renderLeaderboard model.leaderboard ]
         ]
 
 
