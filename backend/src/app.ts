@@ -94,7 +94,7 @@ if (process.env.DEV != "TRUE") {
 }
 
 app.use((err, req, res, next) => {
-    if (err.code !== 'EDBADCSRFTOKEN') return next(err)
+    if (err.code !== 'EBADCSRFTOKEN') return next(err)
 
     console.log("CSRF error with user: ", req.user)
     res.status(403);
