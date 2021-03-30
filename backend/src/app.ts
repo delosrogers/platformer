@@ -115,8 +115,18 @@ passport.deserializeUser(function (id, done) {
 
 
 app.get('/', csrfProtection, (req, res) => {
-    console.log("GET, ROUTE: /, current user: ", req.user)
-    res.render('elm.ejs', { user: req.user, csrfToken: req.csrfToken() });
+    console.log("GET, ROUTE: /, current user: ", req.user);
+    let scriptLocation: string;
+    if (process.env.DEV != 'TRUE') {
+        scriptLocation = "https://hl-platformer.netlify.app/elm.js"
+    } else {
+        scriptLocation = "elm.js"
+    }
+    res.render('elm.ejs', {
+        user: req.user,
+        csrfToken: req.csrfToken(),
+        scriptLocation: scriptLocation,
+    });
 });
 
 app.get('/elm.js', (req, res) => {

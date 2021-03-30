@@ -2,3 +2,4 @@
 .env
 mongo-data
 node_modules
+elm-stuff
