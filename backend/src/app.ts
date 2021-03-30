@@ -148,17 +148,6 @@ app.get('/api/v1/u/:id', async (req, res) => {
     }
 });
 
-app.post('/api/v1/u', async (req, res) => {
-    res.sendStatus(418);
-    // const userName = req.body.name;
-    // const id = await newUser(userName);
-    // if (id) {
-    //     res.send({ _id: id, name: userName, highScore: 0 });
-    // } else {
-    //     res.sendStatus(418);
-    // }
-
-});
 
 app.put('/api/v1/u/:id/highscore', csrfProtection, async (req, res) => {
     const id: string = req.params.id;
@@ -228,19 +217,6 @@ async function getUser(id: string): Promise<IUser> {
     return await User.findById(id).exec();
 }
 
-// async function newUser(name: string): Promise<string> {
-//     await connect('mongodb://localhost:27017/platformer', {
-//         useNewUrlParser: true,
-//         useUnifiedTopology: true
-//     });
-
-//     const user: IUser = await User.create({
-//         name: name,
-//         highScore: 0,
-//     });
-
-//     return user._id.toString();
-// }
 
 async function newHighScore(score: number, id: string) {
     await connect('mongodb://platformer-mongodb:27017/platformer', {
