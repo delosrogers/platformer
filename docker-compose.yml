@@ -22,6 +22,7 @@ services:
       - PRIVKEYPATH=${PRIVKEYPATH}
       - CERTPATH=${CERTPATH}
       - DEV=${DEV}
+      - SECRET_KEY=${SECRET_KEY}
 
 networks: 
   platformer-mongodb-net:
