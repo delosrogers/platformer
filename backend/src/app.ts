@@ -93,13 +93,13 @@ if (process.env.DEV != "TRUE") {
     app.listen(port, () => console.log("listening on port ", port))
 }
 
-app.use((err, req, res, next) {
+app.use((err, req, res, next) => {
     if (err.code !== 'EDBADCSRFTOKEN') return next(err)
 
     console.log("CSRF error with user: ", req.user)
     res.status(403);
     res.send('form tampered with')
-})
+});
 
 
 passport.serializeUser(function (user: IUser, done) {
