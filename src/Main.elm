@@ -434,7 +434,7 @@ renderLeaderboard maybeLeaderboard =
         Just leaderboard ->
             div []
                 (List.map
-                    (\item -> div [] [ text (item.name ++ ": " ++ String.fromInt item.score) ])
+                    (\item -> div [] [ text (Maybe.withDefault "no name" (List.head (String.split " " item.name)) ++ ": " ++ String.fromInt item.score) ])
                     leaderboard
                 )
 
