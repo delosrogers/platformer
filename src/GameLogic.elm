@@ -22,18 +22,24 @@ updatePlayer model =
             model.platforms
     in
     case playerOnPlatforms player platforms of
-        Just _ ->
+        Just platform ->
             if player.vY > 0 then
                 { player
                     | x = player.x + player.vX |> playerWrapAround
                     , vY = -1 * player.vY
-                    , y = player.y + gravity + 10
+                    , y = player.y + gravity + 20
                 }
 
             else
                 { player
                     | x = player.x + player.vX |> playerWrapAround
                     , vY = 0
+                    , y =
+                        if player.y + 14 > platform.y then
+                            platform.y - 15
+
+                        else
+                            player.y
                 }
 
         Nothing ->
@@ -62,8 +68,10 @@ playerOnPlatform player platform =
         < platform.x
         + platform.width
         && player.y
+        + 15
         > platform.y
         && player.y
+        - 5
         < platform.y
         + platformHeight
 

@@ -41,7 +41,7 @@ initWithBestScoreNameXsrfAndId : Int -> Maybe String -> Maybe String -> String -
 initWithBestScoreNameXsrfAndId hs name id xsrf fetchState =
     ( { player =
             { x = 150
-            , y = 300
+            , y = 275
             , vX = 0
             , vY = 0
             }
