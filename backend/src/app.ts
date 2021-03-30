@@ -77,7 +77,7 @@ app.use(express.json());
 app.use(cookieSession({
     name: 'session',
     maxAge: 24 * 60 * 60 * 1000,
-    keys: [cryptoRandomString({ length: 64 })]
+    keys: [process.env.SECRET_KEY || cryptoRandomString({ length: 64 })]
 }));
 app.use(passport.initialize())
 app.use(passport.session());
