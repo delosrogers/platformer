@@ -20,7 +20,7 @@ import Types exposing (..)
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-    initWithBestScoreNameXsrfAndId 0
+    initWithState 0
         Nothing
         (if flags.id == "a" then
             Nothing
@@ -35,10 +35,11 @@ init flags =
          else
             True
         )
+        Nothing
 
 
-initWithBestScoreNameXsrfAndId : Int -> Maybe String -> Maybe String -> String -> Bool -> ( Model, Cmd Msg )
-initWithBestScoreNameXsrfAndId hs name id xsrf fetchState =
+initWithState : Int -> Maybe String -> Maybe String -> String -> Bool -> Maybe (List LeaderboardItem) -> ( Model, Cmd Msg )
+initWithState hs name id xsrf fetchState leaderboard =
     ( { player =
             { x = 150
             , y = 300
@@ -54,12 +55,17 @@ initWithBestScoreNameXsrfAndId hs name id xsrf fetchState =
       , message = Nothing
       , userID = id
       , xsrf = xsrf
+      , leaderboard = leaderboard
       }
     , if fetchState then
-        Cmd.batch [ Random.generate GenList genXPos, getScore id xsrf ]
+        Cmd.batch
+            [ Random.generate GenList genXPos
+            , getScore id xsrf
+            , getLeaderboard
+            ]
 
       else
-        Random.generate GenList genXPos
+        Cmd.batch [ Random.generate GenList genXPos, getLeaderboard ]
     )
 
 
@@ -91,7 +97,7 @@ saveScore model =
                 (Encode.object
                     [ ( "score", Encode.int model.highScore ) ]
                 )
-        , expect = Http.expectWhatever SavedHighScore
+        , expect = Http.expectWhatever SavedHighScoreApiResp
         , timeout = Nothing
         , tracker = Nothing
         }
@@ -108,16 +114,33 @@ getScore userID xsrf =
         , body = Http.emptyBody
         , timeout = Nothing
         , tracker = Nothing
-        , expect = Http.expectJson ApiRespRecieved apiDecoder
+        , expect = Http.expectJson ScoreNameApiResp scoreNameDecoder
         }
 
 
-apiDecoder : Decode.Decoder ScoreApiRes
-apiDecoder =
+scoreNameDecoder : Decode.Decoder ScoreApiRes
+scoreNameDecoder =
     Decode.map3 ScoreApiRes
         (Decode.field "_id" Decode.string)
         (Decode.field "name" Decode.string)
         (Decode.field "highScore" Decode.int)
+
+
+getLeaderboard : Cmd Msg
+getLeaderboard =
+    Http.get
+        { url = "api/v1/leaderboard"
+        , expect = Http.expectJson LeaderboardApiResp leaderboardDecoder
+        }
+
+
+leaderboardDecoder : Decode.Decoder (List LeaderboardItem)
+leaderboardDecoder =
+    Decode.list
+        (Decode.map2 LeaderboardItem
+            (Decode.field "name" Decode.string)
+            (Decode.field "highScore" Decode.int)
+        )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -127,7 +150,7 @@ update msg unshifted_model =
             shiftModel unshifted_model
     in
     case msg of
-        ApiRespRecieved resp ->
+        ScoreNameApiResp resp ->
             case resp of
                 Ok playerInfo ->
                     ( { model
@@ -141,7 +164,19 @@ update msg unshifted_model =
                 Err _ ->
                     ( { model | message = Just "Something went wrong fetching your score and name" }, Cmd.none )
 
-        SavedHighScore resp ->
+        LeaderboardApiResp resp ->
+            case resp of
+                Ok leaderboard ->
+                    ( { model
+                        | leaderboard = Just leaderboard
+                      }
+                    , Cmd.none
+                    )
+
+                Err _ ->
+                    ( model, Cmd.none )
+
+        SavedHighScoreApiResp resp ->
             case resp of
                 Ok _ ->
                     ( { model | message = Just "saved" }, Cmd.none )
@@ -212,7 +247,7 @@ update msg unshifted_model =
                     ( { model | player = stopXMotion model.player }, Cmd.none )
 
         RestartGame ->
-            initWithBestScoreNameXsrfAndId model.highScore model.name model.userID model.xsrf False
+            initWithState model.highScore model.name model.userID model.xsrf False model.leaderboard
 
         GenList xPositions ->
             ( { model
@@ -319,44 +354,48 @@ keyUpDecoder =
 
 view : Model -> Html.Html Msg
 view model =
-    div [ Html.Attributes.classList [ ( "container", True ) ] ]
-        [ button [ Html.Events.onClick RestartGame, Html.Attributes.class "btn-primary" ] [ text "reset" ]
-        , div []
-            [ Html.button [ Html.Events.onClick SaveScore ] [ Html.text "save" ]
-            , case model.userID of
-                Just _ ->
-                    text " signed in "
+    div [ Html.Attributes.classList [ ( "container", True ), ( "row", True ) ] ]
+        [ div [ Html.Attributes.class "col" ]
+            [ button [ Html.Events.onClick RestartGame, Html.Attributes.class "btn-primary" ] [ text "reset" ]
+            , div []
+                [ Html.button [ Html.Events.onClick SaveScore ] [ Html.text "save" ]
+                , case model.userID of
+                    Just _ ->
+                        text " signed in "
+
+                    Nothing ->
+                        Html.a [ Html.Attributes.href "/auth/google" ] [ text "sign in with google (this will cause you to lose your highscore)" ]
+                ]
+            , div [ Html.Attributes.class "center-block" ]
+                [ text
+                    ("Hi "
+                        ++ Maybe.withDefault "" model.name
+                        ++ " your score is "
+                        ++ String.fromInt model.score
+                        ++ " your high score is "
+                        ++ String.fromInt model.highScore
+                    )
+                ]
+            , case model.message of
+                Just msg ->
+                    div [] [ text msg ]
 
                 Nothing ->
-                    Html.a [ Html.Attributes.href "/auth/google" ] [ text "sign in with google (this will cause you to lose your highscore)" ]
-            ]
-        , div [ Html.Attributes.class "center-block" ]
-            [ text
-                ("Hi "
-                    ++ Maybe.withDefault "" model.name
-                    ++ " your score is "
-                    ++ String.fromInt model.score
-                    ++ " your high score is "
-                    ++ String.fromInt model.highScore
-                )
-            ]
-        , case model.message of
-            Just msg ->
-                div [] [ text msg ]
+                    span [] []
+            , if model.alive then
+                Canvas.toHtml
+                    ( round Config.width - 100, round Config.height )
+                    [ Html.Attributes.style "display" "block" ]
+                    (Canvas.clear ( 0, 0 ) Config.width Config.height
+                        :: renderPlayer model.player
+                        :: renderPlatforms model.platforms
+                    )
 
-            Nothing ->
-                span [] []
-        , if model.alive then
-            Canvas.toHtml
-                ( round Config.width - 100, round Config.height )
-                [ Html.Attributes.style "display" "block", Html.Attributes.class "center-block" ]
-                (Canvas.clear ( 0, 0 ) Config.width Config.height
-                    :: renderPlayer model.player
-                    :: renderPlatforms model.platforms
-                )
-
-          else
-            text " you died "
+              else
+                text " you died "
+            ]
+        , div [ Html.Attributes.class "col" ]
+            [ Html.h2 [] [ text "Leaderboard:" ], renderLeaderboard model.leaderboard ]
         ]
 
 
@@ -385,3 +424,17 @@ renderPlatforms platforms =
                         ]
         )
         platforms
+
+
+renderLeaderboard : Maybe (List LeaderboardItem) -> Html.Html Msg
+renderLeaderboard maybeLeaderboard =
+    case maybeLeaderboard of
+        Just leaderboard ->
+            div []
+                (List.map
+                    (\item -> div [] [ text (item.name ++ ": " ++ String.fromInt item.score) ])
+                    leaderboard
+                )
+
+        Nothing ->
+            span [] [ text "sign in to view leaderboard" ]
