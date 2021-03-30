@@ -173,6 +173,7 @@ app.put('/api/v1/u/:id/highscore', csrfProtection, async (req, res) => {
 })
 
 app.get('/api/v1/leaderboard', async (req, res) => {
+    console.log("GET, ROUTE: /api/v1/leaderboard, user: ", req.user);
     if (!req.user) {
         res.sendStatus(418);
         return;
@@ -187,7 +188,6 @@ app.get('/api/v1/leaderboard', async (req, res) => {
     const leaderboard = users.map((user) => {
         return { name: user.name, highScore: user.highScore }
     }).sort((first, second) => second.highScore - first.highScore);
-    console.log("leaderboard:", users);
     res.send(leaderboard);
 })
 
