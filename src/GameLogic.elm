@@ -26,7 +26,13 @@ updatePlayer model =
             if player.vY > 0 then
                 { player
                     | x = player.x + player.vX |> playerWrapAround
-                    , vY = -1 * player.vY
+                    , vY =
+                        case platform.kind of
+                            Normal ->
+                                -1 * player.vY
+
+                            Boosted ->
+                                -2.5 * player.vY
                     , y = platform.y + 16
                 }
 
