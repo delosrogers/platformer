@@ -13,6 +13,13 @@ type alias Model =
     , message : Maybe String
     , userID : Maybe String
     , xsrf : String
+    , leaderboard : Maybe (List LeaderboardItem)
+    }
+
+
+type alias LeaderboardItem =
+    { name : String
+    , score : Int
     }
 
 
@@ -50,11 +57,12 @@ type Msg
     | KeyUp PlayerAction
     | RestartGame
     | GenList ListOfFloat
-    | ApiRespRecieved (Result Http.Error ScoreApiRes)
-    | SavedHighScore (Result Http.Error ())
     | SaveScore
     | GetScoreAndName
     | IdInput String
+    | ScoreNameApiResp (Result Http.Error ScoreApiRes)
+    | LeaderboardApiResp (Result Http.Error (List LeaderboardItem))
+    | SavedHighScoreApiResp (Result Http.Error ())
 
 
 type alias Flags =

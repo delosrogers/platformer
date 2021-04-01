@@ -6,8 +6,7 @@ services:
     networks: 
       - platformer-mongodb-net
     container_name: platformer-mongodb
-    volumes:
-      - ~/platformer/mongo-data:/data/db
+    
     
   app:
     build: .
@@ -23,6 +22,7 @@ services:
       - PRIVKEYPATH=${PRIVKEYPATH}
       - CERTPATH=${CERTPATH}
       - DEV=${DEV}
+      - SECRET_KEY=${SECRET_KEY}
 
 networks: 
   platformer-mongodb-net:
