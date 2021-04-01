@@ -27,7 +27,7 @@ updatePlayer model =
                 { player
                     | x = player.x + player.vX |> playerWrapAround
                     , vY = -1 * player.vY
-                    , y = player.y + gravity + 20
+                    , y = platform.y + 16
                 }
 
             else
@@ -71,7 +71,6 @@ playerOnPlatform player platform =
         + 15
         > platform.y
         && player.y
-        - 5
         < platform.y
         + platformHeight
 
@@ -85,7 +84,7 @@ shiftModel model =
         newScore =
             model.score + 2
     in
-    if model.player.y < 300 then
+    if model.player.y < 275 then
         { model
             | player = { player | y = player.y + 2 }
             , platforms =
