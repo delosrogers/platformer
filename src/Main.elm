@@ -36,10 +36,11 @@ init flags =
             True
         )
         Nothing
+        Nothing
 
 
-initWithState : Int -> Maybe String -> Maybe String -> String -> Bool -> Maybe (List LeaderboardItem) -> ( Model, Cmd Msg )
-initWithState hs name id xsrf fetchState leaderboard =
+initWithState : Int -> Maybe String -> Maybe String -> String -> Bool -> Maybe (List LeaderboardItem) -> Maybe String -> ( Model, Cmd Msg )
+initWithState hs name id xsrf fetchState leaderboard displayName =
     ( { player =
             { x = 150
             , y = 300
@@ -54,6 +55,7 @@ initWithState hs name id xsrf fetchState leaderboard =
       , name = name
       , message = Nothing
       , userID = id
+      , displayName = displayName
       , xsrf = xsrf
       , leaderboard = leaderboard
       }
@@ -98,6 +100,26 @@ saveScore model =
                     [ ( "score", Encode.int model.highScore ) ]
                 )
         , expect = Http.expectWhatever SavedHighScoreApiResp
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+
+setDisplayName : Model -> Cmd Msg
+setDisplayName model =
+    Http.request
+        { method = "PUT"
+        , headers = [ Http.header "CSRF-Token" model.xsrf ]
+        , url =
+            "api/v1/u/"
+                ++ Maybe.withDefault "" model.userID
+                ++ "/display-name"
+        , body =
+            Http.jsonBody
+                (Encode.object
+                    [ ( "displayName", Encode.string (Maybe.withDefault "" model.displayName) ) ]
+                )
+        , expect = Http.expectWhatever SetDisplayNameApiResp
         , timeout = Nothing
         , tracker = Nothing
         }

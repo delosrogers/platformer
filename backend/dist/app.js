@@ -38,7 +38,7 @@ passport_1.default.use(new GoogleStrategy({
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: hostName + ":3000/auth/google/callback",
 }, function (accessToken, refreshToken, profile, done) {
-    mongoose_1.connect('mongodb://localhost:27017/platformer', {
+    mongoose_1.connect('mongodb://platformer-mongodb:27017/platformer', {
         useNewUrlParser: true,
         useUnifiedTopology: true
     });
@@ -62,6 +62,7 @@ const UserSchema = new mongoose_2.Schema({
     name: { type: String, required: true },
     highScore: { type: Number, required: true },
     googleId: { type: String, required: true },
+    displayName: { type: String, required: false },
 });
 const User = mongoose_2.model('User', UserSchema);
 const csrfProtection = csurf_1.default();
@@ -80,12 +81,19 @@ if (process.env.DEV != "TRUE") {
     const certificate = fs_1.default.readFileSync(process.env.CERTPATH, 'utf8');
     const credentials = { key: privateKey, cert: certificate };
     const httpsServer = https_1.default.createServer(credentials, app);
-    httpsServer.listen(3000, "platformer.genedataexplorer.space", () => console.log("listening on port 3000"));
+    httpsServer.listen(3000, "0.0.0.0", () => console.log("listening on port 3000"));
 }
 else {
     const port = 3000;
     app.listen(port, () => console.log("listening on port ", port));
 }
+app.use((err, req, res, next) => {
+    if (err.code !== 'EBADCSRFTOKEN')
+        return next(err);
+    console.log("CSRF error with user: ", req.user);
+    res.status(403);
+    res.send('form tampered with');
+});
 passport_1.default.serializeUser(function (user, done) {
     done(null, user._id);
 });
@@ -94,8 +102,19 @@ passport_1.default.deserializeUser(function (id, done) {
         .then((user) => done(null, user));
 });
 app.get('/', csrfProtection, (req, res) => {
-    console.log("current user: ", req.user);
-    res.render('elm.ejs', { user: req.user, csrfToken: req.csrfToken() });
+    console.log("GET, ROUTE: /, current user: ", req.user);
+    let scriptLocation;
+    if (process.env.DEV != 'TRUE') {
+        scriptLocation = "https://hl-platformer.netlify.app/elm.js";
+    }
+    else {
+        scriptLocation = "elm.js";
+    }
+    res.render('elm.ejs', {
+        user: req.user,
+        csrfToken: req.csrfToken(),
+        scriptLocation: scriptLocation,
+    });
 });
 app.get('/elm.js', (req, res) => {
     res.sendFile(path_1.default.join(__dirname + '/static/elm.js'));
@@ -119,21 +138,37 @@ app.get('/api/v1/u/:id', (req, res) => __awaiter(void 0, void 0, void 0, functio
         res.sendStatus(404);
     }
 }));
-app.post('/api/v1/u', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.sendStatus(418);
-    // const userName = req.body.name;
-    // const id = await newUser(userName);
-    // if (id) {
-    //     res.send({ _id: id, name: userName, highScore: 0 });
-    // } else {
-    //     res.sendStatus(418);
-    // }
-}));
-app.put('/api/v1/u/:id/highscore', csrfProtection, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.session);
+app.put('/aip/v1/u/:id/display-name', csrfProtection, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     const currUser = req.user;
+    console.log("PUT, ROUTE: /api/v1/u/" + id + "/highscore, user: ", currUser);
     if (id != (currUser === null || currUser === void 0 ? void 0 : currUser._id)) {
+        console.log("not authenticated new display-name");
+        res.sendStatus(404);
+        return;
+    }
+    const displayName = req.body.displayName;
+    try {
+        yield setDisplayName(displayName, id);
+        res.sendStatus(200);
+        return;
+    }
+    catch (e) {
+        console.log(e.message);
+        if (e.message == "No Such User") {
+            res.sendStatus(404);
+        }
+        else {
+            res.sendStatus(500);
+        }
+    }
+}));
+app.put('/api/v1/u/:id/highscore', csrfProtection, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    const currUser = req.user;
+    console.log("PUT, ROUTE: /api/v1/u/" + id + "/highscore, user: ", currUser);
+    if (id != (currUser === null || currUser === void 0 ? void 0 : currUser._id)) {
+        console.log("not authenticated new highscore");
         res.sendStatus(404);
         return;
     }
@@ -152,29 +187,55 @@ app.put('/api/v1/u/:id/highscore', csrfProtection, (req, res) => __awaiter(void 
         }
     }
 }));
+app.get('/api/v1/leaderboard', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("GET, ROUTE: /api/v1/leaderboard, user: ", req.user);
+    if (!req.user) {
+        res.sendStatus(418);
+        return;
+    }
+    let users;
+    try {
+        users = yield getAllUsers();
+    }
+    catch (_a) {
+        res.sendStatus(500);
+        return;
+    }
+    const leaderboard = users.map((user) => {
+        return { name: user.name, highScore: user.highScore };
+    })
+        .sort((first, second) => second.highScore - first.highScore)
+        .slice(0, 10);
+    res.send(leaderboard);
+}));
+function getAllUsers() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield mongoose_1.connect('mongodb://platformer-mongodb:27017/platformer', {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+        let users;
+        try {
+            users = yield User.find().exec();
+        }
+        catch (_a) {
+            throw Error("error getting all users");
+        }
+        return users;
+    });
+}
 function getUser(id) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield mongoose_1.connect('mongodb://localhost:27017/platformer', {
+        yield mongoose_1.connect('mongodb://platformer-mongodb:27017/platformer', {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
         return yield User.findById(id).exec();
     });
 }
-// async function newUser(name: string): Promise<string> {
-//     await connect('mongodb://localhost:27017/platformer', {
-//         useNewUrlParser: true,
-//         useUnifiedTopology: true
-//     });
-//     const user: IUser = await User.create({
-//         name: name,
-//         highScore: 0,
-//     });
-//     return user._id.toString();
-// }
 function newHighScore(score, id) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield mongoose_1.connect('mongodb://localhost:27017/platformer', {
+        yield mongoose_1.connect('mongodb://platformer-mongodb:27017/platformer', {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
@@ -185,6 +246,32 @@ function newHighScore(score, id) {
         }
         user.highScore = Math.max(score, user.highScore);
         yield user.save();
+    });
+}
+function setDisplayName(displayName, id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield mongoose_1.connect('mongodb://platformer-mongodb:27017/platformer', {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+        let user;
+        try {
+            yield User.findOne({ _id: id });
+        }
+        catch (e) {
+            throw e;
+        }
+        if (!user) {
+            console.log("couldn't find user");
+            throw new Error('No Such User');
+        }
+        user.displayName = displayName;
+        try {
+            yield user.save();
+        }
+        catch (e) {
+            throw e;
+        }
     });
 }
 //# sourceMappingURL=app.js.map

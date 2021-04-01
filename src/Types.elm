@@ -12,6 +12,7 @@ type alias Model =
     , name : Maybe String
     , message : Maybe String
     , userID : Maybe String
+    , displayName : Maybe String
     , xsrf : String
     , leaderboard : Maybe (List LeaderboardItem)
     }
@@ -63,6 +64,7 @@ type Msg
     | ScoreNameApiResp (Result Http.Error ScoreApiRes)
     | LeaderboardApiResp (Result Http.Error (List LeaderboardItem))
     | SavedHighScoreApiResp (Result Http.Error ())
+    | SetDisplayNameApiResp (Result Http.Error ())
 
 
 type alias Flags =
