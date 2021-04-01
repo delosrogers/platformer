@@ -42,7 +42,7 @@ initWithState : Int -> Maybe String -> Maybe String -> String -> Bool -> Maybe (
 initWithState hs name id xsrf fetchState leaderboard =
     ( { player =
             { x = 150
-            , y = 300
+            , y = 275
             , vX = 0
             , vY = 0
             }
@@ -267,7 +267,7 @@ generatePlatforms i xPos =
     , vX =
         ((0.05 * toFloat i) + 1)
             * toFloat
-                (if modBy 2 i == 0 then
+                (if modBy 2 (round xPos) == 0 then
                     -1
 
                  else

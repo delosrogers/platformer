@@ -22,18 +22,30 @@ updatePlayer model =
             model.platforms
     in
     case playerOnPlatforms player platforms of
-        Just _ ->
+        Just platform ->
             if player.vY > 0 then
                 { player
                     | x = player.x + player.vX |> playerWrapAround
-                    , vY = -1 * player.vY
-                    , y = player.y + gravity + 10
+                    , vY =
+                        case platform.kind of
+                            Normal ->
+                                -1 * player.vY
+
+                            Boosted ->
+                                -2.5 * player.vY
+                    , y = platform.y + 16
                 }
 
             else
                 { player
                     | x = player.x + player.vX |> playerWrapAround
                     , vY = 0
+                    , y =
+                        if player.y + 14 > platform.y then
+                            platform.y - 15
+
+                        else
+                            player.y
                 }
 
         Nothing ->
@@ -62,6 +74,7 @@ playerOnPlatform player platform =
         < platform.x
         + platform.width
         && player.y
+        + 15
         > platform.y
         && player.y
         < platform.y
@@ -77,7 +90,7 @@ shiftModel model =
         newScore =
             model.score + 2
     in
-    if model.player.y < 300 then
+    if model.player.y < 275 then
         { model
             | player = { player | y = player.y + 2 }
             , platforms =
