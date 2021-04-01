@@ -58,12 +58,14 @@ interface IUser extends Document {
     name: string,
     highScore: number,
     googleId: string,
+    displayName: string,
 }
 
 const UserSchema: Schema = new Schema({
     name: { type: String, required: true },
     highScore: { type: Number, required: true },
     googleId: { type: String, required: true },
+    displayName: { type: String, required: false },
 });
 
 
@@ -158,6 +160,29 @@ app.get('/api/v1/u/:id', async (req, res) => {
     }
 });
 
+app.put('/aip/v1/u/:id/display-name', csrfProtection, async (req, res) => {
+    const id: string = req.params.id;
+    const currUser: any = req.user;
+    console.log("PUT, ROUTE: /api/v1/u/" + id + "/highscore, user: ", currUser);
+    if (id != currUser?._id) {
+        console.log("not authenticated new display-name")
+        res.sendStatus(404);
+        return;
+    }
+    const displayName: string = req.body.displayName;
+    try {
+        await setDisplayName(displayName, id);
+        res.sendStatus(200);
+        return;
+    } catch (e) {
+        console.log(e.message);
+        if (e.message == "No Such User") {
+            res.sendStatus(404);
+        } else {
+            res.sendStatus(500);
+        }
+    }
+})
 
 app.put('/api/v1/u/:id/highscore', csrfProtection, async (req, res) => {
     const id: string = req.params.id;
@@ -244,4 +269,31 @@ async function newHighScore(score: number, id: string) {
 
     user.highScore = Math.max(score, user.highScore);
     await user.save();
+}
+
+async function setDisplayName(displayName: string, id: string) {
+    await connect('mongodb://platformer-mongodb:27017/platformer', {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    });
+
+    let user: IUser;
+
+    try {
+        await User.findOne({ _id: id });
+    } catch (e) {
+        throw e;
+    }
+
+    if (!user) {
+        console.log("couldn't find user");
+        throw new Error('No Such User');
+    }
+
+    user.displayName = displayName;
+    try {
+        await user.save();
+    } catch (e) {
+        throw e;
+    }
 }
