@@ -397,6 +397,8 @@ view model =
                 ]
             , div [ Html.Attributes.class "col" ]
                 [ Html.h2 [] [ text "Leaderboard:" ], renderLeaderboard model.leaderboard ]
+            , span [ Html.Attributes.class "col" ]
+                [ Html.h5 [] [ text "Legacy Leaderboard:", Html.br [] [], text " Matthew: 8138", Html.br [] [], text " Cireus: 7938", Html.br [] [], text " Michael: 7930", Html.br [] [], text " Mattias: 5729", Html.br [] [], text " Spencer: 5638" ] ]
             ]
         ]
 
