@@ -1,7 +1,7 @@
 services:
   db:
     volumes:
-      - ~/platformer/mongo-data:/data/db
+      - ~/platformer/mongo-data2:/data/db
   app:
     volumes:
       - ~/certs/platformer.genedataexplorer.space:/certs
