@@ -1,19 +1,18 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/40fbfa42-86fd-4868-ba16-54312c2019e4/deploy-status)](https://app.netlify.com/sites/hl-platformer/deploys) [![Build](https://github.com/delosrogers/platformer/actions/workflows/build.yml/badge.svg)](https://github.com/delosrogers/platformer/actions/workflows/build.yml)
 # Platformer
 
-A vertical scroling platformer written in Elm. You can play the game at https://hl-platformer.netlify.app/elm.html
+A vertical scroling platformer written in Elm. You can play the game at https://platformer.genedaataexplorer.space:3000
 
 ---
 
 ### Dependancies:
-- Node
 - [Elm](https://guide.elm-lang.org/install/elm.html)
-- Docker (or another install of MongoDB)
-
-install all Node dependencies by running `npm install .` in the backend directory and run `npm install -g elm` to globally install Elm on your machine if it's not already installed.
+- Docker
 
 ### Running the code locally
 
-run `npm run tmp-db` in the backend directory to start a new MongoDB Docker container and start the web app. If you already have Mongo running on `localhost:27017` run `build.sh` for a release build or `build-dev.sh` for a debug build. Next, navigate to `http://localhost:3000/elm.html` to play the game.
+build the elm code by running `elm make src/Main.elm --optimize --output=backend/dist/static/elm.js`.
 
-To put a dummy user in the database run `create-dummy-user.sh`.
+start the dockerized backend with `docker compose up`.
+
+You can also just use the game without the backend by starting a webserver in the `backend/dist/static` directory and navigating to `/elm.html`.
