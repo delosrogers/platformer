@@ -1,12 +1,13 @@
 import express from 'express'
 import csurf from 'csurf'
 import path from 'path';
+import { logger } from '../logger'
 
 function getGameRoutes() {
     let router = express.Router()
     const csrfProtection = csurf()
     router.get('/', csrfProtection, (req, res) => {
-        console.log("GET, ROUTE: /, current user: ", req.user);
+        logger.info("GET, ROUTE: /, current user: ", req.user);
         let scriptLocation: string;
         if (process.env.DEV != 'TRUE') {
             scriptLocation = "https://hl-platformer.netlify.app/elm.js"
@@ -21,7 +22,6 @@ function getGameRoutes() {
     });
 
     router.get('/elm.js', (req, res) => {
-        console.log(path.join(__dirname + '/../static/elm.js'))
         res.sendFile(path.join(__dirname + '/../static/elm.js'));
     });
     return router

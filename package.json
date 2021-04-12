@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "elm-canvas": "^2.2.4"
+    "elm-canvas": "^2.2.4",
+    "express-async-errors": "^3.1.1",
+    "loglevel": "^1.7.1"
   }
 }

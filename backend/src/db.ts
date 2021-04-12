@@ -20,6 +20,7 @@ const UserSchema: Schema = new Schema({
 
 const User: Model<IUser> = model('User', UserSchema);
 
+
 function userLogin(accessToken: string, refreshToken: string, profile, done) {
     connect('mongodb://platformer-mongodb:27017/platformer', {
         useNewUrlParser: true,
