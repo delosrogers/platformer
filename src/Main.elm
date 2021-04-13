@@ -95,7 +95,7 @@ saveScore model =
         , body =
             Http.jsonBody
                 (Encode.object
-                    [ ( "score", Encode.int model.highScore ) ]
+                    [ ( "score", Encode.int model.score ) ]
                 )
         , expect = Http.expectWhatever SavedHighScoreApiResp
         , timeout = Nothing
