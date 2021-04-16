@@ -99,6 +99,12 @@ shiftModel model =
                         { platform | y = platform.y + 2 }
                     )
                     model.platforms
+            , backgrounds =
+                List.map
+                    (\background ->
+                        { background | y = background.y + 2 }
+                    )
+                    model.backgrounds
             , score = newScore
             , highScore = max newScore model.highScore
         }

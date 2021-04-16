@@ -49,6 +49,8 @@ initWithState hs name id xsrf fetchState leaderboard =
       , alive = True
       , platforms =
             []
+      , backgrounds =
+            []
       , score = 0
       , highScore = hs
       , name = name
@@ -65,13 +67,18 @@ initWithState hs name id xsrf fetchState leaderboard =
             ]
 
       else
-        Cmd.batch [ Random.generate GenList genXPos, getLeaderboard ]
+        Cmd.batch [ Random.generate GenList genXPos, getLeaderboard, Random.generate GenBack genBackX ]
     )
 
 
 genXPos : Random.Generator (List Float)
 genXPos =
     Random.list 200 (Random.float 0 Config.width)
+
+
+genBackX : Random.Generator (List Float)
+genBackX =
+    Random.list 1000 (Random.float 0 Config.width)
 
 
 main =
@@ -221,7 +228,11 @@ update msg unshifted_model =
                 )
 
             else
-                ( model, Cmd.none )
+                ( { model
+                    | backgrounds = shiftBackground model
+                  }
+                , Cmd.none
+                )
 
         KeyDown action ->
             case action of
@@ -257,6 +268,30 @@ update msg unshifted_model =
               }
             , Cmd.none
             )
+
+        GenBack xPositions ->
+            ( { model
+                | backgrounds =
+                    List.indexedMap generateBackground xPositions
+              }
+            , Cmd.none
+            )
+
+
+shiftBackground : Model -> List Background
+shiftBackground model =
+    List.map
+        (\background ->
+            { background | y = background.y - 3 }
+        )
+        model.backgrounds
+
+
+generateBackground : Int -> Float -> Background
+generateBackground i xPos =
+    { x = xPos
+    , y = 31000 - toFloat (i * 62)
+    }
 
 
 generatePlatforms : Int -> Float -> Platform
@@ -387,13 +422,23 @@ view model =
                     Canvas.toHtml
                         ( round Config.width - 100, round Config.height )
                         [ Html.Attributes.style "display" "block" ]
-                        (Canvas.clear ( 0, 0 ) Config.width Config.height
-                            :: renderPlayer model.player
-                            :: renderPlatforms model.platforms
+                        (List.append
+                            (Canvas.clear ( 0, 0 ) Config.width Config.height
+                                :: renderBackground model.backgrounds
+                            )
+                            (renderPlayer model.player :: renderPlatforms model.platforms)
                         )
 
                   else
-                    text " you died "
+                    Canvas.toHtml
+                        ( round Config.width - 100, round Config.height )
+                        [ Html.Attributes.style "display" "block" ]
+                        (List.append
+                            (Canvas.clear ( 0, 0 ) Config.width Config.height
+                                :: renderBackground model.backgrounds
+                            )
+                            [ renderPlayer2 model.player ]
+                        )
                 ]
             , div [ Html.Attributes.class "col" ]
                 [ Html.h2 [] [ text "Leaderboard:" ], renderLeaderboard model.leaderboard ]
@@ -406,6 +451,11 @@ view model =
 renderPlayer : Player -> Canvas.Renderable
 renderPlayer player =
     Canvas.shapes [ Canvas.Settings.fill Color.blue ] [ Canvas.circle ( player.x - 100, player.y ) 15 ]
+
+
+renderPlayer2 : Player -> Canvas.Renderable
+renderPlayer2 player =
+    Canvas.shapes [ Canvas.Settings.fill Color.blue ] [ Canvas.circle ( player.x - 100, Config.height - 15 ) 15 ]
 
 
 renderPlatforms : Platforms -> List Canvas.Renderable
@@ -428,6 +478,18 @@ renderPlatforms platforms =
                         ]
         )
         platforms
+
+
+renderBackground : List Background -> List Canvas.Renderable
+renderBackground backgrounds =
+    List.map
+        (\background ->
+            Canvas.shapes [ Canvas.Settings.fill Color.darkGreen ]
+                [ Canvas.circle ( background.x - 100, background.y )
+                    3
+                ]
+        )
+        backgrounds
 
 
 renderLeaderboard : Maybe (List LeaderboardItem) -> Html.Html Msg

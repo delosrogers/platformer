@@ -14,6 +14,7 @@ type alias Model =
     , userID : Maybe String
     , xsrf : String
     , leaderboard : Maybe (List LeaderboardItem)
+    , backgrounds : List Background
     }
 
 
@@ -44,6 +45,12 @@ type alias Platform =
     }
 
 
+type alias Background =
+    { x : Float
+    , y : Float
+    }
+
+
 type alias ScoreApiRes =
     { id : String
     , name : String
@@ -57,6 +64,7 @@ type Msg
     | KeyUp PlayerAction
     | RestartGame
     | GenList ListOfFloat
+    | GenBack ListOfFloat
     | SaveScore
     | GetScoreAndName
     | IdInput String
