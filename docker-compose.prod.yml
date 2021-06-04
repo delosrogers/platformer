@@ -4,4 +4,4 @@ services:
       - ~/platformer/mongo-data2:/data/db
   app:
     volumes:
-      - ~/certs/platformer.genedataexplorer.space:/certs
+      - /etc/letsencrypt/live/platformer.genedataexplorer.space:/certs
